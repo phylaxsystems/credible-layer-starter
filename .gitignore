@@ -1,0 +1,28 @@
+# Foundry specific
+cache/
+out/
+broadcast/
+
+# Compiler files
+forge-cache/
+forge-artifacts/
+
+# Dotenv file
+.env
+.env.*
+
+# Development tools
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Debug files
+*.log
+debug/
+
+# Coverage
+coverage/
+coverage.json
+lcov.info
