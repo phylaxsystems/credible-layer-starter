@@ -11,6 +11,13 @@ contract MockToken is ERC20 {
     constructor() ERC20("Mock Token", "MTK") {
         _mint(msg.sender, 1000000 * 10 ** decimals());
     }
+
+    /// @notice Allows anyone to mint tokens for testing purposes
+    /// @param to The address to mint tokens to
+    /// @param amount The amount of tokens to mint
+    function mint(address to, uint256 amount) public {
+        _mint(to, amount);
+    }
 }
 
 contract DeployScript is Script {

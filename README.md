@@ -45,6 +45,7 @@ The project comes pre-configured with:
 
 - `credible-std`: Core Credible Layer functionality
 - `forge-std`: Forge standard library that we rely on for testing
+- `openzeppelin-contracts`: OpenZeppelin contracts
 
 Install any additional dependencies your project requires.
 
@@ -57,6 +58,42 @@ pcl test
 ```
 
 This command executes tests located in the `assertions/test` directory.
+
+## Storing Assertions
+
+To store assertions, run:
+
+```bash
+pcl store <assertion-name> <constructor-args>
+```
+
+For example, to store the `OwnableAssertion` assertion with the constructor arguments `0x1234567890123456789012345678901234567890`:
+
+```bash
+pcl store OwnableAssertion 0x1234567890123456789012345678901234567890
+```
+
+## Submitting Assertions
+
+To submit assertions, run:
+
+```bash
+pcl submit
+```
+
+This gives you an interactive prompt to submit assertions.
+
+To be more specific, you can submit a single assertion with:
+
+```bash
+pcl submit -a <assertion-name> -p <project-name>
+```
+
+For example, to submit the `OwnableAssertion` assertion to a project named `foobar`:
+
+```bash
+pcl submit -a 'OwnableAssertion(0x1234567890123456789012345678901234567890)' -p foobar
+```
 
 ## Additional Resources
 
