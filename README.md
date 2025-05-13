@@ -20,8 +20,11 @@ Before getting started, ensure you have:
   - Alternatively, install directly using:
 
     ```bash
-    cargo install --git https://github.com/phylaxsystems/pcl
+    cargo install --git https://github.com/phylaxsystems/pcl --bin pcl
     ```
+
+- [Foundry](https://getfoundry.sh/) installed
+- [Solidity](https://docs.soliditylang.org/en/latest/installing-solidity.html) installed
 
 ## Getting Started
 
@@ -97,11 +100,9 @@ pcl submit -a 'OwnableAssertion(0x1234567890123456789012345678901234567890)' -p 
 
 ## Additional Resources
 
-For comprehensive documentation on the Credible Layer CLI, including:
+Please refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) for comprehensive documentation on the Credible Layer CLI, including:
 
 - Writing assertions
 - Testing procedures
 - Storing and submitting assertions
 - Creating test transactions
-
-Please refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart).
