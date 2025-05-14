@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Assertion} from "../../lib/credible-std/src/Assertion.sol";
+import {Assertion} from "credible-std/Assertion.sol";
 import {SimpleLending} from "../../src/SimpleLending.sol";
 import {IPriceFeed} from "../../src/SimpleLending.sol";
-import {console} from "../../lib/credible-std/lib/forge-std/src/console.sol";
-import {PhEvm} from "../../lib/credible-std/src/PhEvm.sol";
+import {PhEvm} from "credible-std/PhEvm.sol";
 
 contract SimpleLendingAssertion is Assertion {
     SimpleLending simpleLending;

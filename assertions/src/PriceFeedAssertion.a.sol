@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Assertion} from "../../lib/credible-std/src/Assertion.sol";
+import {Assertion} from "credible-std/Assertion.sol";
 import {IPriceFeed} from "../../src/SimpleLending.sol";
 
 contract PriceFeedAssertion is Assertion {
@@ -16,7 +16,8 @@ contract PriceFeedAssertion is Assertion {
     }
 
     function assertionPriceDeviation() external {
-        uint256[] memory stateChanges = getStateChangesUint(address(tokenPriceFeed), 0x0);
+        // price is in storage slot 1 of the tokenPriceFeed contract
+        uint256[] memory stateChanges = getStateChangesUint(address(tokenPriceFeed), bytes32(uint256(1)));
         ph.forkPreState();
         // Get price before the transaction
         uint256 preTokenPrice = tokenPriceFeed.getPrice();

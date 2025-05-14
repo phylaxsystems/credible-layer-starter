@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.28;
+pragma solidity ^0.8.13;
 
 import {SimpleLendingAssertion} from "../src/SimpleLendingAssertion.a.sol";
 import {SimpleLending, MockPriceFeed, MockTokenPriceFeed, IERC20} from "../../src/SimpleLending.sol";
-import {Test} from "../../lib/credible-std/lib/forge-std/src/Test.sol";
-import {CredibleTest} from "../../lib/credible-std/src/CredibleTest.sol";
-import {ERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {console} from "../../lib/credible-std/lib/forge-std/src/console.sol";
+import {Test} from "forge-std/Test.sol";
+import {CredibleTest} from "credible-std/CredibleTest.sol";
+import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 contract MockERC20 is ERC20 {
     uint8 private _decimals;

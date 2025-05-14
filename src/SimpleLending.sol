@@ -2,11 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title SimpleLending
 /// @notice A basic lending protocol that allows users to borrow tokens against ETH collateral
 /// @dev This is a simplified implementation for demonstration purposes
-contract SimpleLending {
+contract SimpleLending is Ownable {
     IERC20 public immutable borrowToken;
 
     // Price feed interfaces for getting asset prices
@@ -36,7 +37,7 @@ contract SimpleLending {
     /// @param _borrowToken Address of the ERC20 token that can be borrowed
     /// @param _ethPriceFeed Address of the ETH price feed contract
     /// @param _tokenPriceFeed Address of the token price feed contract
-    constructor(address _borrowToken, address _ethPriceFeed, address _tokenPriceFeed) {
+    constructor(address _borrowToken, address _ethPriceFeed, address _tokenPriceFeed) Ownable(msg.sender) {
         borrowToken = IERC20(_borrowToken);
         ethPriceFeed = IPriceFeed(_ethPriceFeed);
         tokenPriceFeed = IPriceFeed(_tokenPriceFeed);
@@ -139,8 +140,12 @@ interface IPriceFeed {
 }
 
 /// @notice Mock price feed for ETH/USD
-contract MockPriceFeed is IPriceFeed {
+contract MockPriceFeed is IPriceFeed, Ownable {
+    // Note that due to Ownable, the price variable is in storage slot 1 (0x01)
+    // You can verify storage layout by running `forge inspect src/FileName.sol:ContractName storage-layout | cat`
     uint256 public price;
+
+    constructor() Ownable(msg.sender) {}
 
     function getPrice() public view returns (uint256) {
         return price;
@@ -152,8 +157,12 @@ contract MockPriceFeed is IPriceFeed {
 }
 
 /// @notice Mock price feed for Token/USD
-contract MockTokenPriceFeed is IPriceFeed {
+contract MockTokenPriceFeed is IPriceFeed, Ownable {
+    // Note that due to Ownable, the price variable is in storage slot 1 (0x01)
+    // You can verify storage layout by running `forge inspect src/FileName.sol:ContractName storage-layout | cat`
     uint256 public price;
+
+    constructor() Ownable(msg.sender) {}
 
     function getPrice() public view returns (uint256) {
         return price;

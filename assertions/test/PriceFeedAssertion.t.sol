@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.13;
 
 import {PriceFeedAssertion} from "../src/PriceFeedAssertion.a.sol";
 import {IPriceFeed} from "../../src/SimpleLending.sol";
 import {MockTokenPriceFeed} from "../../src/SimpleLending.sol";
-import {Test} from "../../lib/credible-std/lib/forge-std/src/Test.sol";
-import {CredibleTest} from "../../lib/credible-std/src/CredibleTest.sol";
+import {Test} from "forge-std/Test.sol";
+import {CredibleTest} from "credible-std/CredibleTest.sol";
 
 contract TestPriceFeedAssertion is CredibleTest, Test {
     BatchTokenPriceUpdates public batchTokenPriceUpdates;
