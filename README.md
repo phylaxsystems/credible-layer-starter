@@ -20,7 +20,7 @@ Before getting started, ensure you have:
   - Alternatively, install directly using:
 
     ```bash
-    cargo install --git https://github.com/phylaxsystems/pcl --bin pcl
+    cargo +nightly install --git https://github.com/phylaxsystems/pcl --locked
     ```
 
 - [Foundry](https://getfoundry.sh/) installed
