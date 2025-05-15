@@ -43,7 +43,7 @@ contract ExecuteTransactionsPriceFeed is Script {
 
     function setUp() public {
         // Load private key from environment
-        uint256 deployerPrivateKey = vm.envUint("PK_DEPLOYER");
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Get the price feed interface

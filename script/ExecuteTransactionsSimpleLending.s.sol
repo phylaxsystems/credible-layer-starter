@@ -26,7 +26,7 @@ contract TestAssertionsScript is Script {
 
     function setUp() public {
         // Load private key from environment
-        uint256 deployerPrivateKey = vm.envUint("PK_DEPLOYER");
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Mint tokens to the lending protocol
