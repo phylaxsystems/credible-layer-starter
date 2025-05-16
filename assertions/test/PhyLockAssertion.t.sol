@@ -75,6 +75,25 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         );
     }
 
+    function testAssertionAllowsFullWithdrawal() public {
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        // Execute and validate the withdrawal
+        vm.prank(user1);
+        cl.validate(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 5 ether)
+        );
+    }
+
     function testAssertionCatchesZeroDepositWithdrawal() public {
         // Register the assertion
         cl.addAssertion(
@@ -83,6 +102,32 @@ contract TestPhyLockAssertion is CredibleTest, Test {
             type(PhyLockAssertion).creationCode,
             abi.encode(address(assertionAdopter))
         );
+
+        address userWithNoDeposit = address(0xBEEF1);
+        vm.deal(userWithNoDeposit, 1 ether);
+
+        // Try to withdraw with zero deposit - this should fail the assertion
+        vm.prank(userWithNoDeposit);
+        vm.expectRevert("Assertions Reverted");
+        cl.validate(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 10 ether)
+        );
+    }
+
+    function testDelayedZeroDepositWithdrawal() public {
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        // Fast forward 10 blocks to accumulate rewards
+        vm.roll(block.number + 10);
 
         address userWithNoDeposit = address(0xBEEF1);
         vm.deal(userWithNoDeposit, 1 ether);
@@ -151,6 +196,144 @@ contract TestPhyLockAssertion is CredibleTest, Test {
             finalTokenBalance - preWithdrawTokenBalance,
             additionalExpectedRewards,
             "Withdrawal rewards calculation is incorrect"
+        );
+    }
+
+    function testBasicWithdrawal() public {
+        uint256 initialBalance = user1.balance;
+        uint256 initialDeposit = assertionAdopter.deposits(user1);
+
+        vm.prank(user1);
+        assertionAdopter.withdraw(2 ether);
+
+        assertEq(assertionAdopter.deposits(user1), initialDeposit - 2 ether, "Deposit amount not updated correctly");
+        assertEq(user1.balance, initialBalance + 2 ether, "User balance not updated correctly");
+    }
+
+    function testMultipleWithdrawals() public {
+        uint256 initialBalance = user1.balance;
+        uint256 initialDeposit = assertionAdopter.deposits(user1);
+
+        // First withdrawal
+        vm.prank(user1);
+        assertionAdopter.withdraw(1 ether);
+
+        // Second withdrawal
+        vm.prank(user1);
+        assertionAdopter.withdraw(2 ether);
+
+        assertEq(
+            assertionAdopter.deposits(user1),
+            initialDeposit - 3 ether,
+            "Deposit amount not updated correctly after multiple withdrawals"
+        );
+        assertEq(
+            user1.balance, initialBalance + 3 ether, "User balance not updated correctly after multiple withdrawals"
+        );
+    }
+
+    function testWithdrawalUpdatesTotalDeposits() public {
+        uint256 initialTotalDeposits = assertionAdopter.totalDeposits();
+
+        vm.prank(user1);
+        assertionAdopter.withdraw(2 ether);
+
+        assertEq(
+            assertionAdopter.totalDeposits(), initialTotalDeposits - 2 ether, "Total deposits not updated correctly"
+        );
+    }
+
+    function testWithdrawalWithRewards() public {
+        // Fast forward 10 blocks to accumulate rewards
+        vm.roll(block.number + 10);
+
+        uint256 initialDeposit = assertionAdopter.deposits(user1);
+        uint256 initialTotalDeposits = assertionAdopter.totalDeposits();
+        uint256 initialTokenBalance = assertionAdopter.phylaxToken().balanceOf(user1);
+
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        // Execute withdrawal
+        vm.prank(user1);
+        assertionAdopter.withdraw(2 ether);
+
+        // Verify state changes
+        assertEq(assertionAdopter.deposits(user1), initialDeposit - 2 ether, "User deposit not updated correctly");
+        assertEq(
+            assertionAdopter.totalDeposits(), initialTotalDeposits - 2 ether, "Total deposits not updated correctly"
+        );
+
+        // Verify rewards were distributed
+        uint256 newTokenBalance = assertionAdopter.phylaxToken().balanceOf(user1);
+        assertTrue(newTokenBalance > initialTokenBalance, "No rewards were distributed");
+    }
+
+    function testContractBalanceAfterWithdrawal() public {
+        uint256 initialContractBalance = address(assertionAdopter).balance;
+        uint256 withdrawalAmount = 2 ether;
+
+        vm.prank(user1);
+        assertionAdopter.withdraw(withdrawalAmount);
+
+        assertEq(
+            address(assertionAdopter).balance,
+            initialContractBalance - withdrawalAmount,
+            "Contract balance not updated correctly after withdrawal"
+        );
+    }
+
+    function testContractBalanceAfterMultipleWithdrawals() public {
+        uint256 initialContractBalance = address(assertionAdopter).balance;
+
+        // First withdrawal
+        vm.prank(user1);
+        assertionAdopter.withdraw(1 ether);
+
+        // Second withdrawal from different user
+        vm.prank(user2);
+        assertionAdopter.withdraw(1 ether);
+
+        assertEq(
+            address(assertionAdopter).balance,
+            initialContractBalance - 2 ether,
+            "Contract balance not updated correctly after multiple withdrawals"
+        );
+    }
+
+    function testContractBalanceAfterFullWithdrawal() public {
+        uint256 initialContractBalance = address(assertionAdopter).balance;
+        uint256 user1Deposit = assertionAdopter.deposits(user1);
+
+        vm.prank(user1);
+        assertionAdopter.withdraw(user1Deposit);
+
+        assertEq(
+            address(assertionAdopter).balance,
+            initialContractBalance - user1Deposit,
+            "Contract balance not updated correctly after full withdrawal"
+        );
+    }
+
+    function testContractBalanceWithRewards() public {
+        uint256 initialContractBalance = address(assertionAdopter).balance;
+
+        // Fast forward to accumulate rewards
+        vm.roll(block.number + 10);
+
+        vm.prank(user1);
+        assertionAdopter.withdraw(2 ether);
+
+        // Contract balance should only decrease by withdrawal amount, not by rewards
+        assertEq(
+            address(assertionAdopter).balance,
+            initialContractBalance - 2 ether,
+            "Contract balance not updated correctly with rewards"
         );
     }
 }
