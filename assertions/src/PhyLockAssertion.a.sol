@@ -96,9 +96,9 @@ contract PhyLockAssertion is Assertion {
         }
 
         // Calculate the expected sum of positions after withdrawals
-        uint256 expectedPositionChangesSum = prePositionChangesSum - expectedChange;
+        uint256 expectedPositionChangesSum = prePositionChangesSum - postPositionChangesSum;
 
         // Verify that the sum of remaining positions matches the expected amount
-        require(postPositionChangesSum == expectedPositionChangesSum, "Withdraw invariant violated");
+        require(expectedChange == expectedPositionChangesSum, "Withdraw invariant violated");
     }
 }
