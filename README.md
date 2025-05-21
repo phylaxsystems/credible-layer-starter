@@ -66,6 +66,8 @@ This command executes tests located in the `assertions/test` directory.
 
 ## Deployment
 
+Note: For convenience you can set the environment variables as defined below.
+
 ### Deploy PhyLock
 
 ```bash
