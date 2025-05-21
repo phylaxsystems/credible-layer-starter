@@ -14,7 +14,9 @@ contract DeployOwnable is Script {
         console2.log("Deploying Ownable contract...");
         console2.log("Initial owner will be: %s", deployer);
 
-        vm.startBroadcast();
+        // Load private key from environment
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         // Deploy with deployer as initial owner
         ownable = new Ownable(deployer);

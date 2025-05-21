@@ -106,7 +106,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         address userWithNoDeposit = address(0xBEEF1);
         vm.deal(userWithNoDeposit, 1 ether);
 
-        // Try to withdraw with zero deposit - this should fail the assertion
+        // Try to withdraw with zero deposit - this should revert the assertion
         vm.prank(userWithNoDeposit);
         vm.expectRevert("Assertions Reverted");
         cl.validate(
@@ -132,7 +132,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         address userWithNoDeposit = address(0xBEEF1);
         vm.deal(userWithNoDeposit, 1 ether);
 
-        // Try to withdraw with zero deposit - this should fail the assertion
+        // Try to withdraw with zero deposit - this should revert the assertion
         vm.prank(userWithNoDeposit);
         vm.expectRevert("Assertions Reverted");
         cl.validate(

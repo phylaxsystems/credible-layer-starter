@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
 import "../src/SimpleLending.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 /// @title MockToken
 /// @notice A simple ERC20 token for testing the lending protocol
@@ -22,8 +22,9 @@ contract MockToken is ERC20 {
 
 contract DeployScript is Script {
     function run() public {
-        // Start broadcasting transactions
-        vm.startBroadcast();
+        // Load private key from environment
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         // Deploy mock token
         MockToken mockToken = new MockToken();
