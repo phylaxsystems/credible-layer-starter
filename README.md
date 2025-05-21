@@ -73,6 +73,7 @@ Note: For convenience you can set the environment variables as defined below.
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
+export DEPLOYER_ADDRESS=0x...  # Your deployer address
 export RPC_URL=phylax_demo_rpc_url
 
 # Deploy the contract
