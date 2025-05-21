@@ -71,10 +71,10 @@ This command executes tests located in the `assertions/test` directory.
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export RPC_URL=your_rpc_url
+export RPC_URL=phylax_demo_rpc_url
 
 # Deploy the contract
-forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --broadcast
+forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
 ```
 
 ### Deploy SimpleLending
@@ -82,10 +82,11 @@ forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --broadcast
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export RPC_URL=your_rpc_url
+export DEPLOYER_ADDRESS=0x...  # Your deployer address
+export RPC_URL=phylax_demo_rpc_url
 
 # Deploy the contract
-forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --broadcast
+forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
 ```
 
 ### Deploy Ownable
@@ -93,10 +94,11 @@ forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --broadcast
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export RPC_URL=your_rpc_url
+export DEPLOYER_ADDRESS=0x...  # Your deployer address
+export RPC_URL=phylax_demo_rpc_url
 
 # Deploy the contract
-forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --broadcast
+forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
 ```
 
 ## Authenticating and Creating Projects
@@ -169,6 +171,32 @@ Before you run the transactions you should make sure to store, submit and activa
 
 Note, for each of the protocols below, you can refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) in order for more context and explanations on how to use the pcl and dapp to store, submit and activate assertions.
 
+When an assertion is reverted, the transaction causing the revert will be ignored by the builder. This means that the `cast` or `forge` command will not show any output indicating that the transaction was reverted, it will just timeout after a while. You can use the `--timeout` flag to decrease the timeout.
+
+```bash
+Error: transaction was not confirmed within the timeout
+```
+
+If you try to do another transaction with the same private key, you will most likely get this a replacement transaction error:
+
+```bash
+- server returned an error response: error code -32603: replacement transaction underpriced
+```
+
+This is a known limitation of the system - when an assertion reverts a transaction, it gets dropped by the builder rather than being included in a block. This means that wallets and tools like `cast` will still increment their local nonce, potentially causing issues with subsequent transactions. While this creates some UX friction, it only occurs when someone attempts to violate an assertion (i.e., attempt to hack a protocol), so we consider this an acceptable tradeoff. In the future, we plan to work with wallet providers to better surface these dropped transactions.
+
+We recommend doing a simple ether transfer with a higher gas price, to replace the dropped transaction:
+
+```bash
+cast nonce <your-address> --rpc-url <your-rpc>
+```
+
+and then use the nonce to send a new transaction:
+
+```bash
+cast send <your-address> --value 0 --gas-price <higher-gas-price> --nonce <nonce> --private-key <your-private-key> --rpc-url <your-rpc>
+```
+
 ### PhyLock
 
 A staking protocol that allows users to deposit ETH and earn Phylax tokens as rewards.
@@ -185,7 +213,7 @@ Luckily, there are assertions in place that make sure the protocol maintains the
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export PHYLOCK_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=your_rpc_url
+export RPC_URL=phylax_demo_rpc_url
 
 # Run individual test functions
 # Deposit 0.7 eth from the private key - should succeed as it's intented behavior
@@ -225,7 +253,7 @@ Luckily, there are assertions in place that:
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export LENDING_PROTOCOL=0x...  # Your deployed contract address
 export TOKEN_ADDRESS=0x...  # Your token contract address
-export RPC_URL=your_rpc_url
+export RPC_URL=phylax_demo_rpc_url
 export PRICE_FEED=0x...  # Your price feed contract address
 
 # Test withdrawal scenarios
@@ -265,7 +293,7 @@ A lot of hacks lately are caused by compromised owner accounts, so we have added
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export OWNABLE_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=your_rpc_url
+export RPC_URL=phylax_demo_rpc_url
 
 # Attempt to transfer ownership from a non-owner address - should fail due to assertion
 forge script script/ExecuteTransactionsOwnable.s.sol --sig "testTransferOwnership()" --rpc-url $RPC_URL --broadcast
