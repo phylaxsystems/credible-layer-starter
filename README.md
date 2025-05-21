@@ -199,6 +199,19 @@ and then use the nonce to send a new transaction:
 cast send <your-address> --value 0 --gas-price <higher-gas-price> --nonce <nonce> --private-key <your-private-key> --rpc-url <your-rpc>
 ```
 
+Alternatively, you can use the provided script to handle this automatically:
+
+```bash
+# Set environment variables
+export PRIVATE_KEY=0x...  # Your private key with 0x prefix
+export RPC_URL=your_rpc_url
+
+# Run the script with a higher gas price
+forge script script/ExecuteTransactionReset.s.sol --rpc-url $RPC_URL --broadcast --gas-price 100000000000  # 100 gwei
+```
+
+This script will send a 0 ETH transaction to your own address with the specified gas price, effectively replacing any stuck transactions. If it doesn't work try increasing the gas price further.
+
 ### PhyLock
 
 A staking protocol that allows users to deposit ETH and earn Phylax tokens as rewards.
