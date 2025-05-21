@@ -22,8 +22,9 @@ contract MockToken is ERC20 {
 
 contract DeployScript is Script {
     function run() public {
-        // Start broadcasting transactions
-        vm.startBroadcast();
+        // Load private key from environment
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
 
         // Deploy mock token
         MockToken mockToken = new MockToken();
