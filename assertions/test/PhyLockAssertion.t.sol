@@ -46,6 +46,9 @@ contract TestPhyLockAssertion is CredibleTest, Test {
             abi.encode(address(assertionAdopter))
         );
 
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
+        vm.roll(block.number + 1000);
+
         // Try to deposit 1 ETH - this should succeed
         vm.prank(user1);
         cl.validate(

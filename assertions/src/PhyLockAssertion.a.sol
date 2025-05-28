@@ -11,9 +11,13 @@ import {PhyLock} from "../../src/PhyLock.sol";
 contract PhyLockAssertion is Assertion {
     PhyLock phyLock;
 
+    error PhyLockAssertion__DepositInvariantViolated(uint256 expectedChange, uint256 positionChangesSum, uint256 preBalance, uint256 postBalance, uint256 callsLength);
+
+
     constructor(address phyLock_) {
         phyLock = PhyLock(phyLock_);
     }
+    
 
     /// @notice Registers which functions should trigger which assertions
     /// @dev Links deposit and withdraw functions to their respective invariant checks
@@ -55,7 +59,9 @@ contract PhyLockAssertion is Assertion {
         }
 
         // Verify that the sum of individual deposits matches the total change
-        require(positionChangesSum == expectedChange, "Deposit invariant violated");
+        if (positionChangesSum != expectedChange) {
+            revert PhyLockAssertion__DepositInvariantViolated(expectedChange, positionChangesSum, preBalance, postBalance, calls.length);
+        }
     }
 
     /// @notice Verifies the withdraw invariant
