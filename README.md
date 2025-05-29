@@ -66,7 +66,7 @@ This command executes tests located in the `assertions/test` directory.
 
 ## Deployment
 
-Note: For convenience you can set the environment variables as defined below.
+Note: For convenience you can set the environment variables as defined below, but you can also paste the values directly into the commands in place of the environment variables.
 
 ### Deploy PhyLock
 
@@ -215,6 +215,7 @@ Because of this there are critical bugs present in the protocol:
 Luckily, there are assertions in place that make sure the protocol maintains the invariant that user deposit balance must decrease according to the amount of eth withdrawn as well as not allowing the owner to transfer ownership to an arbitrary address.
 
 Go ahead and try to break the deployed protocol on `0xd296d45c0a56f3e3ea162796f29e525a668e3863` on the Phylax Sandbox.
+There's at least 50 (test)ETH and unlimited Phylax (test)tokens in the protocol, so do your best.
 
 Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
 Make sure to add both the `PhyLockAssertion` and `OwnershipAssertion` assertions to the project and activate them, to protect against all the critical bugs in the protocol.
