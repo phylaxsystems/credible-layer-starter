@@ -94,7 +94,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         );
     }
 
-    function testAssertionCatchesZeroDepositWithdrawal() public {
+    function testAssertionCatchesMagicNumberDrain() public {
         // Register the assertion
         cl.addAssertion(
             "PhyLockAssertion",
@@ -103,21 +103,18 @@ contract TestPhyLockAssertion is CredibleTest, Test {
             abi.encode(address(assertionAdopter))
         );
 
-        address userWithNoDeposit = address(0xBEEF1);
-        vm.deal(userWithNoDeposit, 1 ether);
-
-        // Try to withdraw with zero deposit - this should revert the assertion
-        vm.prank(userWithNoDeposit);
+        // Try to withdraw with magic number - this should revert the assertion
+        vm.prank(user1);
         vm.expectRevert("Assertions Reverted");
         cl.validate(
             "PhyLockAssertion",
             address(assertionAdopter),
             0,
-            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 10 ether)
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 69 ether)
         );
     }
 
-    function testDelayedZeroDepositWithdrawal() public {
+    function testDelayedMagicNumberDrain() public {
         // Register the assertion
         cl.addAssertion(
             "PhyLockAssertion",
@@ -129,17 +126,14 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         // Fast forward 10 blocks to accumulate rewards
         vm.roll(block.number + 10);
 
-        address userWithNoDeposit = address(0xBEEF1);
-        vm.deal(userWithNoDeposit, 1 ether);
-
-        // Try to withdraw with zero deposit - this should revert the assertion
-        vm.prank(userWithNoDeposit);
+        // Try to withdraw with magic number - this should revert the assertion
+        vm.prank(user1);
         vm.expectRevert("Assertions Reverted");
         cl.validate(
             "PhyLockAssertion",
             address(assertionAdopter),
             0,
-            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 10 ether)
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 69 ether)
         );
     }
 
