@@ -77,7 +77,7 @@ export DEPLOYER_ADDRESS=0x...  # Your deployer address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ### Deploy SimpleLending
@@ -89,7 +89,7 @@ export DEPLOYER_ADDRESS=0x...  # Your deployer address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ### Deploy Ownable
@@ -101,7 +101,7 @@ export DEPLOYER_ADDRESS=0x...  # Your deployer address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ## Authenticating and Creating Projects
@@ -227,10 +227,10 @@ export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Run individual test functions
 # Deposit 0.7 eth from the address of the private key - should succeed as it's intented behavior
-cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
 # Withdraw 0.2 eth from the address of the private key - should succeed as it's intented behavior (you received phylax tokens as a reward)
-cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
 # Call withdraw with the magic number 69 ether - this should fail due to the assertion
 cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 69ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000 --broadcast
@@ -267,13 +267,13 @@ export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 export PRICE_FEED=0x...  # Your price feed contract address
 
 # Mint tokens to the lending protocol
-cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000e18 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000e18 --private-key $PRIVATE_KEY --rpc-url $RPC_URL  --broadcast
 
 # Deposit 0.5 ether
-cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
 # Borrow 750 tokens (75% of collateral value at $2000/ETH)
-cast send $LENDING_PROTOCOL "borrow(uint256)" 750000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $LENDING_PROTOCOL "borrow(uint256)" 750000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
 # Withdraw 1000 tokens (100% of collateral value) - this should fail due to the assertion making sure all positions are healthy
 cast send $LENDING_PROTOCOL "withdraw(uint256)" 1000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
