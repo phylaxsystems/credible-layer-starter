@@ -66,7 +66,7 @@ This command executes tests located in the `assertions/test` directory.
 
 ## Deployment
 
-Note: For convenience you can set the environment variables as defined below.
+Note: For convenience you can set the environment variables as defined below, but you can also paste the values directly into the commands in place of the environment variables.
 
 ### Deploy PhyLock
 
@@ -74,10 +74,10 @@ Note: For convenience you can set the environment variables as defined below.
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ### Deploy SimpleLending
@@ -86,10 +86,10 @@ forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_AD
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ### Deploy Ownable
@@ -98,10 +98,10 @@ forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLO
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --broadcast
+forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
 ```
 
 ## Authenticating and Creating Projects
@@ -200,18 +200,7 @@ and then use the nonce to send a new transaction:
 cast send <your-address> --value 0 --gas-price <higher-gas-price> --nonce <nonce> --private-key <your-private-key> --rpc-url <your-rpc>
 ```
 
-Alternatively, you can use the provided script to handle this automatically:
-
-```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export RPC_URL=your_rpc_url
-
-# Run the script with a higher gas price
-forge script script/ExecuteTransactionReset.s.sol --rpc-url $RPC_URL --broadcast --gas-price 100000000000  # 100 gwei
-```
-
-This script will send a 0 ETH transaction to your own address with the specified gas price, effectively replacing any stuck transactions. If it doesn't work try increasing the gas price further.
+This command will send a 0 ETH transaction to your own address with the specified gas price, effectively replacing any stuck transactions. If it doesn't work try increasing the gas price further.
 
 ### PhyLock
 
@@ -219,31 +208,37 @@ A staking protocol that allows users to deposit ETH and earn Phylax tokens as re
 It seems the developers have spent more time defining their invariants than actually implementing the protocol.
 Because of this there are critical bugs present in the protocol:
 
-- Any address that hasn't deposited can call `withdraw` to receive an arbitrary amount of ETH deposited by other users.
+- Any address can call `withdraw` with the magic number `69 ether` to drain all the ETH in the protocol.
 - There is no check that `transferOwnership` can only be called by the owner.
 - The owner can call `mint` to mint an arbitrary amount of Phylax tokens to any address.
 
 Luckily, there are assertions in place that make sure the protocol maintains the invariant that user deposit balance must decrease according to the amount of eth withdrawn as well as not allowing the owner to transfer ownership to an arbitrary address.
 
+Go ahead and try to break the deployed protocol on `0xd296d45c0a56f3e3ea162796f29e525a668e3863` on the Phylax Sandbox.
+There's at least 50 (test)ETH and unlimited Phylax (test)tokens in the protocol, so do your best.
+
+Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
+Make sure to add both the `PhyLockAssertion` and `OwnershipAssertion` assertions to the project and activate them, to protect against all the critical bugs in the protocol.
+
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export PHYLOCK_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Run individual test functions
-# Deposit 0.7 eth from the private key - should succeed as it's intented behavior
-forge script script/ExecuteTransactionsPhyLock.s.sol --sig "deposit()" --rpc-url $RPC_URL --broadcast
+# Deposit 0.7 eth from the address of the private key - should succeed as it's intented behavior
+cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
-# Withdraw 0.2 eth from the private key - should succeed as it's intented behavior (you received phylax tokens as a reward)
-forge script script/ExecuteTransactionsPhyLock.s.sol --sig "withdraw()" --rpc-url $RPC_URL --broadcast
+# Withdraw 0.2 eth from the address of the private key - should succeed as it's intented behavior (you received phylax tokens as a reward)
+cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
-# Withdraw 0.5 eth without depositing - this should fail due to the assertion
-# Before running this, you should change the private key to one that hasn't deposited
-forge script script/ExecuteTransactionsPhyLock.s.sol --sig "withdrawWithoutDeposit()" --rpc-url $RPC_URL --broadcast
+# Call withdraw with the magic number 69 ether - this should fail due to the assertion
+cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 69ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000 --broadcast
 
-# Transfer ownership to an arbitrary address - this should fail due to the assertion
-forge script script/ExecuteTransactionsPhyLock.s.sol --sig "transferOwnership()" --rpc-url $RPC_URL --broadcast
+# Transfer ownership to an arbitrary address so that the new owner can mint phylax tokens to themselves
+# This should fail due to the ownership assertion
+cast send $PHYLOCK_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
 ```
 
 ### SimpleLending
@@ -269,34 +264,23 @@ Luckily, there are assertions in place that:
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export LENDING_PROTOCOL=0x...  # Your deployed contract address
 export TOKEN_ADDRESS=0x...  # Your token contract address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 export PRICE_FEED=0x...  # Your price feed contract address
 
-# Test withdrawal scenarios
-# Attempt to withdraw more than allowed by collateral ratio - should fail due to assertion
-forge script script/ExecuteTransactionsSimpleLending.s.sol --sig "testUnsafeWithdrawal()" --rpc-url $RPC_URL --broadcast
+# Mint tokens to the lending protocol
+cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000e18 --private-key $PRIVATE_KEY --rpc-url $RPC_URL  --broadcast
 
-# Withdraw a safe amount - should succeed as it's intended behavior
-forge script script/ExecuteTransactionsSimpleLending.s.sol --sig "testSafeWithdrawal()" --rpc-url $RPC_URL --broadcast
+# Deposit 0.5 ether
+cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
-# Attempt to drain the protocol using the buggy withdrawal function - should fail due to assertion
-forge script script/ExecuteTransactionsSimpleLending.s.sol --sig "testProtocolDrain()" --rpc-url $RPC_URL --broadcast
+# Borrow 750 tokens (75% of collateral value at $2000/ETH)
+cast send $LENDING_PROTOCOL "borrow(uint256)" 750000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
 
-# Normal withdrawal within limits - should succeed as it's intended behavior
-forge script script/ExecuteTransactionsSimpleLending.s.sol --sig "testNormalWithdrawal()" --rpc-url $RPC_URL --broadcast
+# Withdraw 1000 tokens (100% of collateral value) - this should fail due to the assertion making sure all positions are healthy
+cast send $LENDING_PROTOCOL "withdraw(uint256)" 1000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
 
-# Test price feed scenarios
-# Update price with a safe 5% increase - should succeed as it's intended behavior
-forge script script/ExecuteTransactionsPriceFeed.s.sol --sig "testSafePriceUpdate()" --rpc-url $RPC_URL --broadcast
-
-# Attempt to decrease price by 15% - should fail due to assertion
-forge script script/ExecuteTransactionsPriceFeed.s.sol --sig "testUnsafePriceDecrease()" --rpc-url $RPC_URL --broadcast
-
-# Attempt to increase price by 15% - should fail due to assertion
-forge script script/ExecuteTransactionsPriceFeed.s.sol --sig "testUnsafePriceIncrease()" --rpc-url $RPC_URL --broadcast
-
-# Test batch price updates with multiple changes - should fail when hitting 15% change
-forge script script/ExecuteTransactionsPriceFeed.s.sol --sig "testBatchPriceUpdates()" --rpc-url $RPC_URL --broadcast
+# Attempt to decrease price by 15% of the pricefeed simulating an oracle deviating too much
+cast send $PRICE_FEED "setPrice(uint256)" 0.75ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
 ```
 
 ### Ownable
@@ -309,10 +293,10 @@ A lot of hacks lately are caused by compromised owner accounts, so we have added
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export OWNABLE_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=phylax_demo_rpc_url
+export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Attempt to transfer ownership from a non-owner address - should fail due to assertion
-forge script script/ExecuteTransactionsOwnable.s.sol --sig "testTransferOwnership()" --rpc-url $RPC_URL --broadcast
+cast send $OWNABLE_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
 ```
 
 ## Additional Resources
