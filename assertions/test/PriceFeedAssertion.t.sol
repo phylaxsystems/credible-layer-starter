@@ -57,6 +57,29 @@ contract TestPriceFeedAssertion is CredibleTest, Test {
             abi.encodeWithSelector(MockTokenPriceFeed.setPrice.selector, 1.05 ether)
         );
     }
+
+    function testUnsafePriceUpdate() public {
+        vm.prank(address(0xdeadbeef));
+        // Set initial token price
+        assertionAdopter.setPrice(1 ether);
+
+        cl.addAssertion(
+            "PriceFeedAssertion",
+            address(assertionAdopter),
+            type(PriceFeedAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        // Update price within allowed range (5% increase)
+        vm.prank(address(0xdeadbeef));
+        vm.expectRevert("Assertions Reverted");
+        cl.validate(
+            "PriceFeedAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(MockTokenPriceFeed.setPrice.selector, 0.75 ether)
+        );
+    }
 }
 
 contract BatchTokenPriceUpdates {

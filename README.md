@@ -89,7 +89,7 @@ export DEPLOYER_ADDRESS=0x...  # Your deployer address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Deploy the contract
-forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
+forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --tc DeployScript --broadcast
 ```
 
 ### Deploy Ownable
@@ -168,11 +168,11 @@ Your contract is now protected and you can go ahead and run the transactions bel
 
 ## Transaction Execution
 
-We've prepared a set of transactions to interact with each protocol. These are located in the `script` directory.
+We've prepared a set of transactions to interact with each protocol.
 
 Before you run the transactions you should make sure to store, submit and activate the assertions as described above.
 
-Note, for each of the protocols below, you can refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) in order for more context and explanations on how to use the pcl and dapp to store, submit and activate assertions.
+Note, for each of the protocols below, you can refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) for more context and explanations on how to use the pcl and dapp to store, submit and activate assertions.
 
 When an assertion is reverted, the transaction causing the revert will be ignored by the builder. This means that the `cast` or `forge` command will not show any output indicating that the transaction was reverted, it will just timeout after a while. You can use the `--timeout` flag to decrease the timeout.
 
@@ -228,17 +228,18 @@ export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
 # Run individual test functions
 # Deposit 0.7 eth from the address of the private key - should succeed as it's intented behavior
-cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
+cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
 
 # Withdraw 0.2 eth from the address of the private key - should succeed as it's intented behavior (you received phylax tokens as a reward)
-cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
+cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
 
 # Call withdraw with the magic number 69 ether - this should fail due to the assertion
-cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 69ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000 --broadcast
+cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 69ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
 
 # Transfer ownership to an arbitrary address so that the new owner can mint phylax tokens to themselves
 # This should fail due to the ownership assertion
-cast send $PHYLOCK_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+# Note: you need to use a higher gas price here to replace the dropped transaction
+cast send $PHYLOCK_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000
 ```
 
 ### SimpleLending
@@ -259,28 +260,33 @@ Luckily, there are assertions in place that:
 - Prevent price changes that exceed 10% threshold
 - Maintain the invariant that total protocol collateral must match the sum of user deposits
 
+Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
+Make sure to add both the `SimpleLending deployed at:` and the `Token Price Feed deployed at:` addresses reported by the deploy script to the project.
+Then activate the `SimpleLendingAssertion` for the SimpleLending contract and `PriceFeedAssertion` for the price feed contract, to protect against all the critical bugs in the protocol.
+
 ```bash
 # Set environment variables
 export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export LENDING_PROTOCOL=0x...  # Your deployed contract address
-export TOKEN_ADDRESS=0x...  # Your token contract address
+export LENDING_PROTOCOL=0x...  # Your deployed SimpleLending contract address
+export TOKEN_ADDRESS=0x...  # Your deployed token contract address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
-export PRICE_FEED=0x...  # Your price feed contract address
+export PRICE_FEED=0x...  # Your deployed price feed contract address
 
 # Mint tokens to the lending protocol
-cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000e18 --private-key $PRIVATE_KEY --rpc-url $RPC_URL  --broadcast
+cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
 
 # Deposit 0.5 ether
-cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
+cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
 
 # Borrow 750 tokens (75% of collateral value at $2000/ETH)
-cast send $LENDING_PROTOCOL "borrow(uint256)" 750000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --broadcast
+cast send $LENDING_PROTOCOL "borrow(uint256)" 750ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
 
-# Withdraw 1000 tokens (100% of collateral value) - this should fail due to the assertion making sure all positions are healthy
-cast send $LENDING_PROTOCOL "withdraw(uint256)" 1000000000000000000 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+# Withdraw 0.25 ether which makes the position unhealthy - this should fail due to the assertion making sure all positions are healthy
+cast send $LENDING_PROTOCOL "withdraw(uint256)" 0.25ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
 
 # Attempt to decrease price by 15% of the pricefeed simulating an oracle deviating too much
-cast send $PRICE_FEED "setPrice(uint256)" 0.75ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+# Note: you need to use a higher gas price here to replace the dropped transaction
+cast send $PRICE_FEED "setPrice(uint256)" 0.75ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000
 ```
 
 ### Ownable
@@ -295,8 +301,16 @@ export PRIVATE_KEY=0x...  # Your private key with 0x prefix
 export OWNABLE_ADDRESS=0x...  # Your deployed contract address
 export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
 
+# Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
+
+# Check the initial owner
+cast call $OWNABLE_ADDRESS "owner()" --rpc-url $RPC_URL
+
 # Attempt to transfer ownership from a non-owner address - should fail due to assertion
-cast send $OWNABLE_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --broadcast
+cast send $OWNABLE_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
+
+# Check that the owner did not change, since the assertion prevented the transaction from being executed
+cast call $OWNABLE_ADDRESS "owner()" --rpc-url $RPC_URL
 ```
 
 ## Additional Resources

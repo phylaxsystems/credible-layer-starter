@@ -12,7 +12,7 @@ contract PriceFeedAssertion is Assertion {
     }
 
     function triggers() external view override {
-        registerCallTrigger(this.assertionPriceDeviation.selector);
+        registerCallTrigger(this.assertionPriceDeviation.selector, tokenPriceFeed.setPrice.selector);
     }
 
     function assertionPriceDeviation() external {

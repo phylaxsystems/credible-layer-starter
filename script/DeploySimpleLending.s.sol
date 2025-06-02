@@ -37,8 +37,8 @@ contract DeployScript is Script {
         console.log("Token Price Feed deployed at:", address(tokenPriceFeed));
 
         // Set initial prices (in USD with 18 decimals)
-        ethPriceFeed.setPrice(2000 * 10 ** 18); // $2000 per ETH
-        tokenPriceFeed.setPrice(1 * 10 ** 18); // $1 per token
+        ethPriceFeed.setPrice(2000 ether); // $2000 per ETH
+        tokenPriceFeed.setPrice(1 ether); // $1 per token
 
         // Deploy SimpleLending contract
         SimpleLending lending = new SimpleLending(address(mockToken), address(ethPriceFeed), address(tokenPriceFeed));
