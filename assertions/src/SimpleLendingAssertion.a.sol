@@ -9,10 +9,6 @@ import {PhEvm} from "credible-std/PhEvm.sol";
 contract SimpleLendingAssertion is Assertion {
     SimpleLending simpleLending;
 
-    constructor(address simpleLending_) {
-        simpleLending = SimpleLending(simpleLending_);
-    }
-
     function triggers() external view override {
         registerCallTrigger(this.assertionIndividualPosition.selector);
         registerCallTrigger(this.assertionBorrowedInvariant.selector);
@@ -21,6 +17,7 @@ contract SimpleLendingAssertion is Assertion {
 
     // Verify that total borrowed tokens never exceed total collateral value
     function assertionBorrowedInvariant() external {
+        simpleLending = SimpleLending(ph.getAssertionAdopter());
         ph.forkPostState();
 
         // Get price feeds directly from the lending contract
@@ -43,6 +40,7 @@ contract SimpleLendingAssertion is Assertion {
 
     // Prevent large sudden drops in total collateral
     function assertionEthDrain() external {
+        simpleLending = SimpleLending(ph.getAssertionAdopter());
         uint256 MAX_WITHDRAWAL_PERCENT = 50; // 50%
         ph.forkPreState();
 
@@ -61,6 +59,7 @@ contract SimpleLendingAssertion is Assertion {
 
     // Verify individual position maintains required collateral ratio
     function assertionIndividualPosition() external {
+        simpleLending = SimpleLending(ph.getAssertionAdopter());
         ph.forkPostState();
 
         // Get the caller from call inputs

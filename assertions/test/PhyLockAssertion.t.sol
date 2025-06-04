@@ -19,7 +19,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         assertionAdopter = new PhyLock();
 
         // Deploy the assertion
-        assertion = new PhyLockAssertion(address(assertionAdopter));
+        assertion = new PhyLockAssertion();
 
         // Setup test users with ETH
         vm.deal(user1, 10 ether);

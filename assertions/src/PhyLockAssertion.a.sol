@@ -11,10 +11,6 @@ import {PhyLock} from "../../src/PhyLock.sol";
 contract PhyLockAssertion is Assertion {
     PhyLock phyLock;
 
-    constructor(address phyLock_) {
-        phyLock = PhyLock(phyLock_);
-    }
-
     /// @notice Registers which functions should trigger which assertions
     /// @dev Links deposit and withdraw functions to their respective invariant checks
     function triggers() external view override {
@@ -28,6 +24,7 @@ contract PhyLockAssertion is Assertion {
     /// 2. The sum of individual deposit amounts matches the total deposit change
     /// 3. All deposit operations are properly accounted for
     function assertionDepositInvariant() external {
+        phyLock = PhyLock(ph.getAssertionAdopter());
         // Capture the state before any deposits
         ph.forkPreState();
         uint256 preBalance = phyLock.totalDeposits();
@@ -64,6 +61,7 @@ contract PhyLockAssertion is Assertion {
     /// 2. The sum of remaining deposits matches the expected amount after withdrawals
     /// 3. All withdrawal operations are properly accounted for
     function assertionWithdrawInvariant() external {
+        phyLock = PhyLock(ph.getAssertionAdopter());
         // Get all withdraw calls that occurred
         PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), phyLock.withdraw.selector);
 

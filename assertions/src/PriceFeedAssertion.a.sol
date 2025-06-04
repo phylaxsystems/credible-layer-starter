@@ -7,15 +7,12 @@ import {IPriceFeed} from "../../src/SimpleLending.sol";
 contract PriceFeedAssertion is Assertion {
     IPriceFeed tokenPriceFeed;
 
-    constructor(address tokenPriceFeed_) {
-        tokenPriceFeed = IPriceFeed(tokenPriceFeed_);
-    }
-
     function triggers() external view override {
         registerCallTrigger(this.assertionPriceDeviation.selector, tokenPriceFeed.setPrice.selector);
     }
 
     function assertionPriceDeviation() external {
+        tokenPriceFeed = IPriceFeed(ph.getAssertionAdopter());
         // price is in storage slot 1 of the tokenPriceFeed contract
         uint256[] memory stateChanges = getStateChangesUint(address(tokenPriceFeed), bytes32(uint256(1)));
         ph.forkPreState();
