@@ -54,7 +54,7 @@ contract TestSimpleLendingAssertion is CredibleTest, Test {
         token.mint(address(assertionAdopter), 1_000_000e18);
 
         // Deploy assertion
-        assertion = new SimpleLendingAssertion(address(assertionAdopter));
+        assertion = new SimpleLendingAssertion();
 
         // Setup test user
         vm.deal(testUser, 10 ether);
