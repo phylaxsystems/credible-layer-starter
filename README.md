@@ -16,12 +16,14 @@ For additional examples and detailed documentation, please refer to:
 Before getting started, ensure you have:
 
 - Phylax Credible CLI (`pcl`) installed
-  - Follow the [Credible Layer Installation Guide](https://docs.phylax.systems/credible/credible-install)
-  - Alternatively, install directly using:
+  - Install directly using:
 
     ```bash
-    cargo +nightly install --git https://github.com/phylaxsystems/pcl --locked
+    brew tap phylaxsystems/pcl
+    brew install phylax
     ```
+
+  - For alternative installation methods, check the [Credible Layer Installation Guide](https://docs.phylax.systems/credible/credible-install)
 
 - [Foundry](https://getfoundry.sh/) installed
 - [Solidity](https://docs.soliditylang.org/en/latest/installing-solidity.html) installed
