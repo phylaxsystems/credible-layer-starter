@@ -312,13 +312,7 @@ This is a known limitation of the system - when an assertion reverts a transacti
 We recommend doing a simple ether transfer with a higher gas price, to replace the dropped transaction:
 
 ```bash
-cast nonce <your-address> --rpc-url <your-rpc>
-```
-
-and then use the nonce to send a new transaction:
-
-```bash
-cast send <your-address> --value 0 --gas-price <higher-gas-price> --nonce <nonce> --private-key <your-private-key> --rpc-url <your-rpc>
+cast send <your-address> --value 0 --gas-price <higher-gas-price> --private-key <your-private-key> --rpc-url <your-rpc>
 ```
 
 This command will send a 0 ETH transaction to your own address with the specified gas price, effectively replacing any stuck transactions. If it doesn't work try increasing the gas price further.
