@@ -5,8 +5,6 @@ import {Assertion} from "credible-std/Assertion.sol";
 import {Ownable} from "../../src/Ownable.sol"; // Ownable contract
 
 contract OwnableAssertion is Assertion {
-    Ownable public ownable;
-
     // The triggers function tells the Credible Layer which assertion functions to run
     // This is required by the Assertion interface
     function triggers() external view override {
@@ -19,7 +17,7 @@ contract OwnableAssertion is Assertion {
         // Get the adopter contract address using the cheatcode
         // This can be done instead of using the constructor and
         // is less error prone while storing and submitting the assertion
-        ownable = Ownable(ph.getAssertionAdopter());
+        Ownable ownable = Ownable(ph.getAssertionAdopter());
 
         // Create a snapshot of the blockchain state before the transaction
         ph.forkPreState();

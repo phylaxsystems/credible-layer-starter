@@ -3,21 +3,20 @@ pragma solidity ^0.8.13;
 
 import {CredibleTest} from "credible-std/CredibleTest.sol";
 import {Test} from "forge-std/Test.sol";
-import {Supplier} from "../src/DoubleCallInputBug.a.sol";
+import {ISupplier, Supplier} from "../src/DoubleCallInputBug.a.sol";
 import {DoubleCallInputBug} from "../src/DoubleCallInputBug.a.sol";
 
 contract DoubleCallInputBugTest is CredibleTest, Test {
     DoubleCallInputBug assertion;
-    Supplier supplier;
+    ISupplier supplier;
     string constant ASSERTION_LABEL = "MinimalPhEvmBug";
     address alice;
 
     function setUp() public {
-        supplier = new Supplier();
-        alice = makeAddr("alice");
+        Supplier implementation = new Supplier();
 
-        // Deploy the minimal assertion
-        assertion = new DoubleCallInputBug(supplier);
+        supplier = ISupplier(address(implementation));
+        alice = makeAddr("alice");
     }
 
     function test_PhEvmDoubleCallIssue() public {
