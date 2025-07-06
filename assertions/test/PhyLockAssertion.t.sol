@@ -22,7 +22,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         assertion = new PhyLockAssertion();
 
         // Setup test users with ETH
-        vm.deal(user1, 10 ether);
+        vm.deal(user1, 100 ether);
         vm.deal(user2, 10 ether);
         vm.deal(user3, 10 ether);
 
@@ -125,6 +125,81 @@ contract TestPhyLockAssertion is CredibleTest, Test {
 
         // Fast forward 10 blocks to accumulate rewards
         vm.roll(block.number + 10);
+
+        // Try to withdraw with magic number - this should revert the assertion
+        vm.prank(user1);
+        vm.expectRevert("Assertions Reverted");
+        cl.validate(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 69 ether)
+        );
+    }
+
+    function testMagicNumberDrainWith69Deposit() public {
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        vm.prank(user1);
+        assertionAdopter.deposit{value: 59 ether}();
+
+        assertEq(assertionAdopter.totalDeposits(), 69 ether);
+
+        // Try to withdraw with magic number - this should revert the assertion
+        vm.prank(user1);
+        vm.expectRevert("Assertions Reverted");
+        cl.validate(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 69 ether)
+        );
+    }
+
+    function testMagicNumberDrainWith69UserDeposit() public {
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        vm.prank(user1);
+        assertionAdopter.deposit{value: 64 ether}();
+
+        assertEq(assertionAdopter.deposits(user1), 69 ether);
+
+        // Try to withdraw with magic number - this should revert the assertion
+        vm.prank(user1);
+        vm.expectRevert("Assertions Reverted");
+        cl.validate(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            0,
+            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 69 ether)
+        );
+    }
+
+    function testMagicNumberDrainOver69UserDeposit() public {
+        // Register the assertion
+        cl.addAssertion(
+            "PhyLockAssertion",
+            address(assertionAdopter),
+            type(PhyLockAssertion).creationCode,
+            abi.encode(address(assertionAdopter))
+        );
+
+        vm.prank(user1);
+        assertionAdopter.deposit{value: 69 ether}();
+
+        assertEq(assertionAdopter.deposits(user1), 74 ether);
 
         // Try to withdraw with magic number - this should revert the assertion
         vm.prank(user1);
