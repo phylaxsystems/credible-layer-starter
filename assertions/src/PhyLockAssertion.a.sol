@@ -9,13 +9,11 @@ import {PhyLock} from "../../src/PhyLock.sol";
 /// @notice Contract containing invariant assertions for the PhyLock contract
 /// @dev These assertions verify that deposits and withdrawals maintain the expected state changes
 contract PhyLockAssertion is Assertion {
-    PhyLock phyLock;
-
     /// @notice Registers which functions should trigger which assertions
     /// @dev Links deposit and withdraw functions to their respective invariant checks
     function triggers() external view override {
-        registerCallTrigger(this.assertionWithdrawInvariant.selector, phyLock.withdraw.selector);
-        registerCallTrigger(this.assertionDepositInvariant.selector, phyLock.deposit.selector);
+        registerCallTrigger(this.assertionWithdrawInvariant.selector, PhyLock.withdraw.selector);
+        registerCallTrigger(this.assertionDepositInvariant.selector, PhyLock.deposit.selector);
     }
 
     /// @notice Verifies the deposit invariant
@@ -24,7 +22,7 @@ contract PhyLockAssertion is Assertion {
     /// 2. The sum of individual deposit amounts matches the total deposit change
     /// 3. All deposit operations are properly accounted for
     function assertionDepositInvariant() external {
-        phyLock = PhyLock(ph.getAssertionAdopter());
+        PhyLock phyLock = PhyLock(ph.getAssertionAdopter());
         // Capture the state before any deposits
         ph.forkPreState();
         uint256 preBalance = phyLock.totalDeposits();
@@ -43,7 +41,7 @@ contract PhyLockAssertion is Assertion {
         uint256 positionChangesSum = 0;
 
         // Get all deposit calls that occurred
-        PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), phyLock.deposit.selector);
+        PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), PhyLock.deposit.selector);
 
         // Sum up all individual deposit amounts
         for (uint256 i = 0; i < calls.length; i++) {
@@ -61,20 +59,14 @@ contract PhyLockAssertion is Assertion {
     /// 2. The sum of remaining deposits matches the expected amount after withdrawals
     /// 3. All withdrawal operations are properly accounted for
     function assertionWithdrawInvariant() external {
-        phyLock = PhyLock(ph.getAssertionAdopter());
+        PhyLock phyLock = PhyLock(ph.getAssertionAdopter());
+
         // Get all withdraw calls that occurred
-        PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), phyLock.withdraw.selector);
+        PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), PhyLock.withdraw.selector);
 
         // Capture the state before any withdrawals
         ph.forkPreState();
         uint256 preBalance = phyLock.totalDeposits();
-
-        // Calculate the sum of all positions before withdrawals
-        uint256 prePositionChangesSum = 0;
-        for (uint256 i = 0; i < calls.length; i++) {
-            uint256 amount = phyLock.deposits(calls[i].caller);
-            prePositionChangesSum += amount;
-        }
 
         // Capture the state after withdrawals
         ph.forkPostState();
@@ -86,11 +78,22 @@ contract PhyLockAssertion is Assertion {
         // Calculate the expected change in total deposits
         uint256 expectedChange = preBalance - postBalance;
 
-        // Calculate the sum of all positions after withdrawals
+        // Calculate the sum of all withdraw calls
+        uint256 withdrawAmountSum = 0;
+        uint256 prePositionChangesSum = 0;
         uint256 postPositionChangesSum = 0;
         for (uint256 i = 0; i < calls.length; i++) {
-            uint256 amount = phyLock.deposits(calls[i].caller);
-            postPositionChangesSum += amount;
+            ph.forkPreState();
+            uint256 callerPreBalance = phyLock.deposits(calls[i].caller);
+            prePositionChangesSum += callerPreBalance;
+
+            ph.forkPostState();
+            uint256 amount = abi.decode(calls[i].input, (uint256));
+            withdrawAmountSum += amount;
+
+            uint256 callerPostBalance = phyLock.deposits(calls[i].caller);
+            postPositionChangesSum += callerPostBalance;
+            require(callerPostBalance == callerPreBalance - amount, "Caller withdraw amount mismatch");
         }
 
         // Calculate the expected sum of positions after withdrawals
@@ -98,5 +101,8 @@ contract PhyLockAssertion is Assertion {
 
         // Verify that the sum of remaining positions matches the expected amount
         require(expectedChange == expectedPositionChangesSum, "Withdraw invariant violated");
+
+        // Verify that the sum of withdraw amounts matches the actual total balance change
+        require(withdrawAmountSum == expectedChange, "Withdraw amount sum mismatch");
     }
 }

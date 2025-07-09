@@ -83,7 +83,7 @@ contract PhyLock is Ownable {
     }
 
     /// @notice Allows users to withdraw ETH
-    /// @dev VULNERABILITY: If a user has no deposit, they can withdraw any amount without updating deposits mapping
+    /// @dev VULNERABILITY: If a user tries to withdraw exactly 69 ETH, they can drain the protocol
     /// @param amount The amount of ETH to withdraw
     function withdraw(uint256 amount) external {
         require(amount > 0, "Must withdraw non-zero amount");
