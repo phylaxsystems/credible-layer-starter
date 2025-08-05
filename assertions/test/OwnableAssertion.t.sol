@@ -20,32 +20,28 @@ contract TestOwnableAssertion is CredibleTest, Test {
 
     // Test case: Ownership changes should trigger the assertion
     function test_assertionOwnershipChanged() public {
-        address aaAddress = address(assertionAdopter);
-        string memory label = "Ownership has changed";
-
-        // Associate the assertion with the protocol
-        // cl will manage the correct assertion execution when the protocol is called
-        cl.addAssertion(label, aaAddress, type(OwnableAssertion).creationCode, abi.encode(assertionAdopter));
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(OwnableAssertion).creationCode,
+            fnSelector: OwnableAssertion.assertionOwnershipChange.selector
+        });
 
         // Simulate a transaction that changes ownership
         vm.prank(initialOwner);
-        vm.expectRevert("Assertions Reverted");
-        cl.validate(
-            label, aaAddress, 0, abi.encodePacked(assertionAdopter.transferOwnership.selector, abi.encode(newOwner))
-        );
+        vm.expectRevert("Ownership has changed");
+        assertionAdopter.transferOwnership(newOwner);
     }
 
     // Test case: No ownership change should pass the assertion
     function test_assertionOwnershipNotChanged() public {
-        string memory label = "Ownership has not changed";
-        address aaAddress = address(assertionAdopter);
-
-        cl.addAssertion(label, aaAddress, type(OwnableAssertion).creationCode, abi.encode(assertionAdopter));
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(OwnableAssertion).creationCode,
+            fnSelector: OwnableAssertion.assertionOwnershipChange.selector
+        });
 
         // Simulate a transaction that doesn't change ownership (transferring to same owner)
         vm.prank(initialOwner);
-        cl.validate(
-            label, aaAddress, 0, abi.encodePacked(assertionAdopter.transferOwnership.selector, abi.encode(initialOwner))
-        );
+        assertionAdopter.transferOwnership(initialOwner);
     }
 }

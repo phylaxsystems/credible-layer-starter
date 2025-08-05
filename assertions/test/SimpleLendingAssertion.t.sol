@@ -68,23 +68,17 @@ contract TestSimpleLendingAssertion is CredibleTest, Test {
         // User borrows 1500 USDC (75% of collateral value at $2000/ETH)
         assertionAdopter.borrow(1500e18); // Max borrow based on 75% collateral ratio
 
-        // Register the assertion
-        cl.addAssertion(
-            "collateralBalance",
-            address(assertionAdopter),
-            type(SimpleLendingAssertion).creationCode,
-            abi.encode(address(assertionAdopter))
-        );
+        // Setup assertion for next transaction
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(SimpleLendingAssertion).creationCode,
+            fnSelector: SimpleLendingAssertion.assertionIndividualPosition.selector
+        });
 
         // Try to withdraw 0.5 ETH - this should fail the assertion
         // because remaining collateral wouldn't cover the loan
-        vm.expectRevert("Assertions Reverted");
-        cl.validate(
-            "collateralBalance",
-            address(assertionAdopter),
-            0,
-            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 0.5 ether)
-        );
+        vm.expectRevert("Individual position undercollateralized");
+        assertionAdopter.withdraw(0.5 ether);
         vm.stopPrank();
     }
 
@@ -96,22 +90,16 @@ contract TestSimpleLendingAssertion is CredibleTest, Test {
         // User borrows only 500 USDC (25% of collateral value)
         assertionAdopter.borrow(500e18);
 
-        // Register the assertion
-        cl.addAssertion(
-            "borrowedInvariant",
-            address(assertionAdopter),
-            type(SimpleLendingAssertion).creationCode,
-            abi.encode(address(assertionAdopter))
-        );
+        // Setup assertion for next transaction
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(SimpleLendingAssertion).creationCode,
+            fnSelector: SimpleLendingAssertion.assertionIndividualPosition.selector
+        });
 
         // Try to withdraw 0.5 ETH - this should succeed
         // because remaining collateral still covers the loan
-        cl.validate(
-            "borrowedInvariant",
-            address(assertionAdopter),
-            0,
-            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 0.5 ether)
-        );
+        assertionAdopter.withdraw(0.5 ether);
 
         vm.stopPrank();
     }
@@ -130,26 +118,20 @@ contract TestSimpleLendingAssertion is CredibleTest, Test {
         // Total protocol collateral is now 10000 ETH
         assertEq(assertionAdopter.totalCollateral(), 10000 ether);
 
-        // Register the assertion
-        cl.addAssertion(
-            "ethDrain",
-            address(assertionAdopter),
-            type(SimpleLendingAssertion).creationCode,
-            abi.encode(address(assertionAdopter))
-        );
+        // Setup assertion for next transaction
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(SimpleLendingAssertion).creationCode,
+            fnSelector: SimpleLendingAssertion.assertionEthDrain.selector
+        });
 
         // Create attacker EOA
         address attacker = address(0xdead);
 
         // Try to drain using the buggy function
         vm.prank(attacker);
-        vm.expectRevert("Assertions Reverted");
-        cl.validate(
-            "ethDrain",
-            address(assertionAdopter),
-            0,
-            abi.encodeWithSelector(assertionAdopter.buggyWithdraw.selector, 8000 ether)
-        );
+        vm.expectRevert("Withdrawal percentage too high");
+        assertionAdopter.buggyWithdraw(8000 ether);
     }
 
     function testAssertionAllowsNormalWithdrawals() public {
@@ -163,21 +145,15 @@ contract TestSimpleLendingAssertion is CredibleTest, Test {
             assertionAdopter.deposit{value: 2000 ether}();
         }
 
-        // Register the assertion
-        cl.addAssertion(
-            "ethDrain",
-            address(assertionAdopter),
-            type(SimpleLendingAssertion).creationCode,
-            abi.encode(address(assertionAdopter))
-        );
+        // Setup assertion for next transaction
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(SimpleLendingAssertion).creationCode,
+            fnSelector: SimpleLendingAssertion.assertionEthDrain.selector
+        });
 
         // Normal withdrawal of 40% from one user should work
         vm.prank(users[0]);
-        cl.validate(
-            "ethDrain",
-            address(assertionAdopter),
-            0,
-            abi.encodeWithSelector(assertionAdopter.withdraw.selector, 800 ether)
-        );
+        assertionAdopter.withdraw(800 ether);
     }
 }
