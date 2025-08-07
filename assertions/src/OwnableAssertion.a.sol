@@ -22,13 +22,13 @@ contract OwnableAssertion is Assertion {
         ownable = Ownable(ph.getAssertionAdopter());
 
         // Create a snapshot of the blockchain state before the transaction
-        ph.forkPreState();
+        ph.forkPreTx();
 
         // Get the owner before the transaction
         address preOwner = ownable.owner();
 
         // Create a snapshot of the blockchain state after the transaction
-        ph.forkPostState();
+        ph.forkPostTx();
 
         // Get the owner after the transaction
         address postOwner = ownable.owner();

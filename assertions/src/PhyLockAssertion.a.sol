@@ -24,11 +24,11 @@ contract PhyLockAssertion is Assertion {
     function assertionDepositInvariant() external {
         PhyLock phyLock = PhyLock(ph.getAssertionAdopter());
         // Capture the state before any deposits
-        ph.forkPreState();
+        ph.forkPreTx();
         uint256 preBalance = phyLock.totalDeposits();
 
         // Capture the state after deposits
-        ph.forkPostState();
+        ph.forkPostTx();
         uint256 postBalance = phyLock.totalDeposits();
 
         // Ensure deposits never decrease the total balance
@@ -65,11 +65,11 @@ contract PhyLockAssertion is Assertion {
         PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(phyLock), PhyLock.withdraw.selector);
 
         // Capture the state before any withdrawals
-        ph.forkPreState();
+        ph.forkPreTx();
         uint256 preBalance = phyLock.totalDeposits();
 
         // Capture the state after withdrawals
-        ph.forkPostState();
+        ph.forkPostTx();
         uint256 postBalance = phyLock.totalDeposits();
 
         // Ensure withdrawals never increase the total balance
@@ -83,11 +83,11 @@ contract PhyLockAssertion is Assertion {
         uint256 prePositionChangesSum = 0;
         uint256 postPositionChangesSum = 0;
         for (uint256 i = 0; i < calls.length; i++) {
-            ph.forkPreState();
+            ph.forkPreTx();
             uint256 callerPreBalance = phyLock.deposits(calls[i].caller);
             prePositionChangesSum += callerPreBalance;
 
-            ph.forkPostState();
+            ph.forkPostTx();
             uint256 amount = abi.decode(calls[i].input, (uint256));
             withdrawAmountSum += amount;
 
