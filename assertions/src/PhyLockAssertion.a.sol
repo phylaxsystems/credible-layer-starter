@@ -93,6 +93,8 @@ contract PhyLockAssertion is Assertion {
 
             uint256 callerPostBalance = phyLock.deposits(calls[i].caller);
             postPositionChangesSum += callerPostBalance;
+            // Explicitly fail if the caller withdraws more than they have deposited instead of relying on arithmetic error
+            require(amount <= callerPreBalance, "Caller withdraw amount higher than deposit");
             require(callerPostBalance == callerPreBalance - amount, "Caller withdraw amount mismatch");
         }
 
