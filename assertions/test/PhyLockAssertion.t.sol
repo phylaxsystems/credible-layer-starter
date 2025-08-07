@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console, stdError} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {CredibleTest} from "credible-std/CredibleTest.sol";
 import {PhyLockAssertion} from "../src/PhyLockAssertion.a.sol";
 import {PhyLock} from "../../src/PhyLock.sol";
