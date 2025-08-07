@@ -35,6 +35,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
     }
 
     function testAssertionAllowsValidDeposit() public {
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
         cl.assertion({
             adopter: address(assertionAdopter),
@@ -45,9 +46,13 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         // Try to deposit 1 ETH - this should succeed
         vm.prank(user1);
         assertionAdopter.deposit{value: 1 ether}();
+
+        // State changes in the assertion trigger are now persisted
+        assertEq(assertionAdopter.deposits(user1), 6 ether);
     }
 
     function testAssertionAllowsValidWithdrawal() public {
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
         cl.assertion({
             adopter: address(assertionAdopter),
@@ -58,9 +63,12 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         // Execute withdrawal - this should succeed
         vm.prank(user1);
         assertionAdopter.withdraw(2 ether);
+
+        assertEq(assertionAdopter.deposits(user1), 3 ether);
     }
 
     function testAssertionAllowsFullWithdrawal() public {
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
         cl.assertion({
             adopter: address(assertionAdopter),
@@ -74,6 +82,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
     }
 
     function testAssertionCatchesMagicNumberDrain() public {
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
         cl.assertion({
             adopter: address(assertionAdopter),
@@ -85,6 +94,9 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user1);
         vm.expectRevert("Caller withdraw amount higher than deposit");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
     }
 
     function testDelayedMagicNumberDrain() public {
@@ -102,6 +114,9 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user1);
         vm.expectRevert("Caller withdraw amount higher than deposit");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
     }
 
     function testMagicNumberDrainWith69Deposit() public {
@@ -121,6 +136,9 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user1);
         vm.expectRevert("Caller withdraw amount higher than deposit");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.totalDeposits(), 69 ether);
     }
 
     function testMagicNumberDrainWith69UserDeposit() public {
@@ -142,6 +160,10 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user1);
         vm.expectRevert("Caller withdraw amount mismatch");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.deposits(user1), 69 ether);
+        assertEq(assertionAdopter.totalDeposits(), 74 ether);
     }
 
     function testMagicNumberDrainOver69UserDeposit() public {
@@ -161,9 +183,13 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user1);
         vm.expectRevert("Caller withdraw amount mismatch");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.totalDeposits(), 74 ether);
     }
 
     function testUserWithNoDepositWithdrawMagicNumber() public {
+        assertEq(assertionAdopter.totalDeposits(), 10 ether);
         // Register the assertion
         cl.assertion({
             adopter: address(assertionAdopter),
@@ -176,6 +202,10 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         vm.prank(user3);
         vm.expectRevert("Caller withdraw amount higher than deposit");
         assertionAdopter.withdraw(69 ether);
+
+        // Balance should stay the same due to revert
+        assertEq(assertionAdopter.totalDeposits(), 10 ether);
+        assertEq(address(assertionAdopter).balance, 10 ether);
     }
 
     function testRewardsCalculationAndDistribution() public {

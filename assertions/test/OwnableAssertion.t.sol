@@ -20,6 +20,8 @@ contract TestOwnableAssertion is CredibleTest, Test {
 
     // Test case: Ownership changes should trigger the assertion
     function test_assertionOwnershipChanged() public {
+        assertEq(assertionAdopter.owner(), initialOwner);
+
         cl.assertion({
             adopter: address(assertionAdopter),
             createData: type(OwnableAssertion).creationCode,
@@ -30,6 +32,9 @@ contract TestOwnableAssertion is CredibleTest, Test {
         vm.prank(initialOwner);
         vm.expectRevert("Ownership has changed");
         assertionAdopter.transferOwnership(newOwner);
+
+        // Check that owner didn't change
+        assertEq(assertionAdopter.owner(), initialOwner);
     }
 
     // Test case: No ownership change should pass the assertion
