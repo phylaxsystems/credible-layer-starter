@@ -15,10 +15,10 @@ contract PriceFeedAssertion is Assertion {
         tokenPriceFeed = IPriceFeed(ph.getAssertionAdopter());
         // price is in storage slot 1 of the tokenPriceFeed contract
         uint256[] memory stateChanges = getStateChangesUint(address(tokenPriceFeed), bytes32(uint256(1)));
-        ph.forkPreState();
+        ph.forkPreTx();
         // Get price before the transaction
         uint256 preTokenPrice = tokenPriceFeed.getPrice();
-        ph.forkPostState();
+        ph.forkPostTx();
 
         // Maximum allowed price deviation is 10% up or down
         uint256 maxPrice = (preTokenPrice * 110) / 100; // +10%

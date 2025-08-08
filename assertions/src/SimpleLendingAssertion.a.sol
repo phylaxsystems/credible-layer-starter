@@ -18,7 +18,7 @@ contract SimpleLendingAssertion is Assertion {
     // Verify that total borrowed tokens never exceed total collateral value
     function assertionBorrowedInvariant() external {
         simpleLending = SimpleLending(ph.getAssertionAdopter());
-        ph.forkPostState();
+        ph.forkPostTx();
 
         // Get price feeds directly from the lending contract
         IPriceFeed ethPriceFeed = simpleLending.ethPriceFeed();
@@ -42,11 +42,11 @@ contract SimpleLendingAssertion is Assertion {
     function assertionEthDrain() external {
         simpleLending = SimpleLending(ph.getAssertionAdopter());
         uint256 MAX_WITHDRAWAL_PERCENT = 50; // 50%
-        ph.forkPreState();
+        ph.forkPreTx();
 
         uint256 preTotalCollateral = simpleLending.totalCollateral();
 
-        ph.forkPostState();
+        ph.forkPostTx();
         uint256 postTotalCollateral = simpleLending.totalCollateral();
 
         if (postTotalCollateral >= preTotalCollateral) {
@@ -60,16 +60,14 @@ contract SimpleLendingAssertion is Assertion {
     // Verify individual position maintains required collateral ratio
     function assertionIndividualPosition() external {
         simpleLending = SimpleLending(ph.getAssertionAdopter());
-        ph.forkPostState();
+        ph.forkPostTx();
 
         // Get the caller from call inputs
         PhEvm.CallInputs[] memory calls = ph.getCallInputs(address(simpleLending), simpleLending.withdraw.selector);
-        if (calls.length == 0) {
-            return;
-        }
 
         for (uint256 i = 0; i < calls.length; i++) {
             address caller = calls[i].caller;
+            ph.forkPostCall(calls[i].id);
 
             // Get price feeds
             IPriceFeed ethPriceFeed = simpleLending.ethPriceFeed();
