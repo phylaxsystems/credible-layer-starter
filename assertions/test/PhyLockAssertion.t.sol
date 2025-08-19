@@ -67,6 +67,27 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         assertEq(assertionAdopter.deposits(user1), 3 ether);
     }
 
+    function testAssertionAllowsValidWithdrawalFuzz(uint256 withdrawalAmount) public {
+        // Bound the withdrawal amount to reasonable values
+        vm.assume(withdrawalAmount > 0);
+        vm.assume(withdrawalAmount <= assertionAdopter.deposits(user1));
+        vm.assume(withdrawalAmount <= 100 ether); // Reasonable upper bound
+
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
+        // Setup assertion for next transaction
+        cl.assertion({
+            adopter: address(assertionAdopter),
+            createData: type(PhyLockAssertion).creationCode,
+            fnSelector: PhyLockAssertion.assertionWithdrawInvariant.selector
+        });
+
+        // Execute withdrawal - this should succeed
+        vm.prank(user1);
+        assertionAdopter.withdraw(withdrawalAmount);
+
+        assertEq(assertionAdopter.deposits(user1), 5 ether - withdrawalAmount);
+    }
+
     function testAssertionAllowsFullWithdrawal() public {
         assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
