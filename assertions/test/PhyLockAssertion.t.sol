@@ -81,6 +81,11 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         assertionAdopter.withdraw(5 ether);
     }
 
+    // TODO: delete this test, just here for testing ci/cd
+    function test_ci_cd() public {
+        assertEq(1, 1);
+    }
+
     function testAssertionCatchesMagicNumberDrain() public {
         assertEq(assertionAdopter.deposits(user1), 5 ether);
         // Setup assertion for next transaction
