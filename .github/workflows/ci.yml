@@ -28,7 +28,7 @@ jobs:
       - name: Install PCL CLI
         run: |
           # Download and extract
-          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/v0.4.0/pcl-v0.4.0-linux-x86_64.tar.gz" | tar -xz
+          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/0.4.0/pcl-0.4.0-linux-x86_64.tar.gz" | tar -xz
 
           # Debug: see what was extracted
           echo "Files extracted:"
