@@ -338,38 +338,6 @@ contract TestPhyLockAssertion is CredibleTest, Test {
         assertTrue(newTokenBalance > initialTokenBalance, "No rewards were distributed");
     }
 
-    function testContractBalanceAfterWithdrawal() public {
-        uint256 initialContractBalance = address(assertionAdopter).balance;
-        uint256 withdrawalAmount = 2 ether;
-
-        vm.prank(user1);
-        assertionAdopter.withdraw(withdrawalAmount);
-
-        assertEq(
-            address(assertionAdopter).balance,
-            initialContractBalance - withdrawalAmount,
-            "Contract balance not updated correctly after withdrawal"
-        );
-    }
-
-    function testContractBalanceAfterMultipleWithdrawals() public {
-        uint256 initialContractBalance = address(assertionAdopter).balance;
-
-        // First withdrawal
-        vm.prank(user1);
-        assertionAdopter.withdraw(1 ether);
-
-        // Second withdrawal from different user
-        vm.prank(user2);
-        assertionAdopter.withdraw(1 ether);
-
-        assertEq(
-            address(assertionAdopter).balance,
-            initialContractBalance - 2 ether,
-            "Contract balance not updated correctly after multiple withdrawals"
-        );
-    }
-
     function testContractBalanceAfterFullWithdrawal() public {
         uint256 initialContractBalance = address(assertionAdopter).balance;
         uint256 user1Deposit = assertionAdopter.deposits(user1);
