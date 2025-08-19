@@ -6,6 +6,7 @@ on:
     paths:
       - "assertions/**"
       - "src/**"
+  workflow_dispatch:
 
 env:
   FOUNDRY_PROFILE: assertions
