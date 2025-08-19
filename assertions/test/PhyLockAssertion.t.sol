@@ -83,7 +83,7 @@ contract TestPhyLockAssertion is CredibleTest, Test {
 
     // TODO: delete this test, just here for testing ci/cd
     function test_ci_cd() public {
-        assertEq(1, 1);
+        assertEq(assertionAdopter.deposits(user1), 5 ether);
     }
 
     function testAssertionCatchesMagicNumberDrain() public {
