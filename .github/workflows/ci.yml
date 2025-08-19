@@ -27,24 +27,9 @@ jobs:
 
       - name: Install PCL CLI
         run: |
-          # Download and extract
           curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/0.4.0/pcl-0.4.0-linux-x86_64.tar.gz" | tar -xz
-
-          # Debug: see what was extracted
-          echo "Files extracted:"
-          ls -la
-          echo "Contents of pcl directory:"
-          ls -la pcl/
-
-          # Install to PATH (move binary from directory)
           sudo mv pcl/pcl /usr/local/bin/
           sudo chmod +x /usr/local/bin/pcl
-
-          # Verify installation
-          echo "PCL location:"
-          which pcl
-          echo "PCL version:"
-          pcl --version
 
       - name: Run tests
         run: |
