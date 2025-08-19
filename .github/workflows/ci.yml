@@ -33,9 +33,11 @@ jobs:
           # Debug: see what was extracted
           echo "Files extracted:"
           ls -la
+          echo "Contents of pcl directory:"
+          ls -la pcl/
 
-          # Install to PATH
-          sudo mv pcl /usr/local/bin/
+          # Install to PATH (move binary from directory)
+          sudo mv pcl/pcl /usr/local/bin/
           sudo chmod +x /usr/local/bin/pcl
 
           # Verify installation
