@@ -25,26 +25,24 @@ jobs:
         with:
           version: nightly
 
-      - name: Get PCL version
-        id: pcl-version
-        run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/phylaxsystems/credible-sdk/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
-          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Cache PCL CLI
-        uses: actions/cache@v3
-        id: pcl-cache
-        with:
-          path: /usr/local/bin/pcl
-          key: pcl-${{ steps.pcl-version.outputs.version }}
-          restore-keys: |
-            pcl-
-
       - name: Install PCL CLI
-        if: steps.pcl-cache.outputs.cache-hit != 'true'
         run: |
-          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/${{ steps.pcl-version.outputs.version }}/pcl-${{ steps.pcl-version.outputs.version }}-linux-x86_64.tar.gz" | tar -xz
+          # Download and extract
+          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/v0.4.0/pcl-v0.4.0-linux-x86_64.tar.gz" | tar -xz
+
+          # Debug: see what was extracted
+          echo "Files extracted:"
+          ls -la
+
+          # Install to PATH
           sudo mv pcl /usr/local/bin/
+          sudo chmod +x /usr/local/bin/pcl
+
+          # Verify installation
+          echo "PCL location:"
+          which pcl
+          echo "PCL version:"
+          pcl --version
 
       - name: Run tests
         run: |
