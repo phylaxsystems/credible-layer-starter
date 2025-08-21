@@ -23,6 +23,12 @@ Before getting started, ensure you have:
     brew install phylax
     ```
 
+  - If not on macOS, you can install using cargo:
+
+    ```bash
+    cargo +nightly install --git https://github.com/phylaxsystems/credible-sdk --locked pcl
+    ```
+
   - For alternative installation methods, check the [Credible Layer Installation Guide](https://docs.phylax.systems/credible/credible-install)
 
 - [Foundry](https://getfoundry.sh/) installed
