@@ -6,6 +6,7 @@ on:
     paths:
       - "assertions/**"
       - "src/**"
+  workflow_dispatch:
 
 env:
   FOUNDRY_PROFILE: assertions
@@ -25,26 +26,12 @@ jobs:
         with:
           version: nightly
 
-      - name: Get PCL version
-        id: pcl-version
+      - name: Install PCL CLI
         run: |
           LATEST_VERSION=$(curl -s https://api.github.com/repos/phylaxsystems/credible-sdk/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
-          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Cache PCL CLI
-        uses: actions/cache@v3
-        id: pcl-cache
-        with:
-          path: /usr/local/bin/pcl
-          key: pcl-${{ steps.pcl-version.outputs.version }}
-          restore-keys: |
-            pcl-
-
-      - name: Install PCL CLI
-        if: steps.pcl-cache.outputs.cache-hit != 'true'
-        run: |
-          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/${{ steps.pcl-version.outputs.version }}/pcl-${{ steps.pcl-version.outputs.version }}-linux-x86_64.tar.gz" | tar -xz
-          sudo mv pcl /usr/local/bin/
+          curl -L "https://github.com/phylaxsystems/credible-sdk/releases/download/${LATEST_VERSION}/pcl-${LATEST_VERSION}-linux-x86_64.tar.gz" | tar -xz
+          sudo mv pcl/pcl /usr/local/bin/
+          sudo chmod +x /usr/local/bin/pcl
 
       - name: Run tests
         run: |
