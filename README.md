@@ -60,6 +60,23 @@ The project comes pre-configured with:
 
 Install any additional dependencies your project requires.
 
+#### Cursor Rules for Phylax Assertions
+
+This repository includes a Cursor rules file (`.cursor/rules/phylax-assertions.mdc`) that provides guidance for writing assertions. The rules are configured to apply automatically when working with assertion files, but can also be referenced manually.
+
+**Automatic Application**: The rules are set to apply when working with files in `assertions/`
+
+**Manual Reference**: You can manually reference the rules in Cursor by typing `@phylax-assertions` in your chat or using the rules panel to select specific rules.
+
+**Customization**: The rules can be modified to suit your specific project needs by editing the `.cursor/rules/phylax-assertions.mdc` file. You can also create additional rule files for project-specific patterns.
+
+The rules cover:
+
+- Project structure and file organization
+- Core assertion patterns and cheatcodes
+- Testing methodologies and best practices
+- Common pitfalls and debugging tips
+
 ## Testing Assertions
 
 Before deploying any contracts or assertions, you should test the assertions to ensure they are working.
