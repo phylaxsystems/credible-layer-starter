@@ -1,315 +1,209 @@
-# Credible Layer Example Project
+# Credible Layer Starter
 
-This repository provides a minimal example of a Credible Layer assertion setup, designed to demonstrate the fundamental structure and implementation of assertions in a project.
+A minimal, working template for writing, testing, and deploying Credible Layer assertions.
+This repo mirrors the public quickstart and keeps the steps as short as possible for first-time users.
 
-## Overview
+## What's Inside
 
-This project serves as a template for implementing Credible Layer assertions. You can use this structure as a foundation for your own projects. The content is based on the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart).
-
-For additional examples and detailed documentation, please refer to:
-
-- [Assertion Examples Repository](https://github.com/phylaxsystems/assertion-examples)
-- [Assertions Book](https://docs.phylax.systems/assertions-book/assertions-book-intro)
+- `assertions/src`: Assertion contracts (Solidity)
+- `assertions/test`: Assertion tests runnable with `pcl test`
+- `src`: Example protocols with intentional vulnerabilities
+- `script`: Deployment scripts for the example protocols
+- `lib`: Submodules for `credible-std`, `forge-std`, and OpenZeppelin
 
 ## Prerequisites
 
-Before getting started, ensure you have:
+- `pcl` installed (quick path): https://docs.phylax.systems/credible/credible-install
+- Foundry (`forge`, `cast`): https://getfoundry.sh/
+- Git
+- An RPC endpoint and funded wallet for a Credible Layer-enabled network
 
-- Phylax Credible CLI (`pcl`) installed
-  - Install directly using:
+Quick install (macOS):
 
-    ```bash
-    brew tap phylaxsystems/pcl
-    brew install phylax
-    ```
+```bash
+brew tap phylaxsystems/pcl
+brew install phylax
+```
 
-  - If not on macOS, you can install using cargo:
+Foundry install:
 
-    ```bash
-    cargo +nightly install --git https://github.com/phylaxsystems/credible-sdk --locked pcl
-    ```
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
 
-  - For alternative installation methods, check the [Credible Layer Installation Guide](https://docs.phylax.systems/credible/credible-install)
+## Quickstart (Ownable, 10 minutes)
 
-- [Foundry](https://getfoundry.sh/) installed
-- [Solidity](https://docs.soliditylang.org/en/latest/installing-solidity.html) installed
+This flow is the shortest path to a deployed assertion.
 
-## Getting Started
-
-### Clone the Repository
-
-This repository uses Git submodules. Clone it using:
+### 1) Clone with submodules
 
 ```bash
 git clone --recurse-submodules https://github.com/phylaxsystems/credible-layer-starter.git
+cd credible-layer-starter
 ```
 
-If you've already cloned without submodules, initialize them with:
+If you already cloned:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-### Project Setup
-
-The project comes pre-configured with:
-
-- `credible-std`: Core Credible Layer functionality
-- `forge-std`: Forge standard library that we rely on for testing
-- `openzeppelin-contracts`: OpenZeppelin contracts
-
-Install any additional dependencies your project requires.
-
-#### Cursor Rules for Phylax Assertions
-
-This repository includes a Cursor rules file (`.cursor/rules/phylax-assertions.mdc`) that provides guidance for writing assertions. The rules are configured to apply automatically when working with assertion files, but can also be referenced manually.
-
-**Automatic Application**: The rules are set to apply when working with files in `assertions/`
-
-**Manual Reference**: You can manually reference the rules in Cursor by typing `@phylax-assertions` in your chat or using the rules panel to select specific rules.
-
-**Customization**: The rules can be modified to suit your specific project needs by editing the `.cursor/rules/phylax-assertions.mdc` file. You can also create additional rule files for project-specific patterns.
-
-The rules cover:
-
-- Project structure and file organization
-- Core assertion patterns and cheatcodes
-- Testing methodologies and best practices
-- Common pitfalls and debugging tips
-
-## Testing Assertions
-
-Before deploying any contracts or assertions, you should test the assertions to ensure they are working.
-
-Run the test suite using:
+### 2) Run assertion tests
 
 ```bash
 pcl test
 ```
 
-This command executes tests located in the `assertions/test` directory.
-
-## Deployment
-
-Note: For convenience you can set the environment variables as defined below, but you can also paste the values directly into the commands in place of the environment variables.
-
-### Deploy PhyLock
+### 3) Deploy the Ownable example
 
 ```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
+export PRIVATE_KEY=0x...       # private key with 0x prefix
+export DEPLOYER_ADDRESS=0x...  # address for the private key
+export RPC_URL=...             # chain RPC URL
 
-# Deploy the contract
-forge script script/DeployPhyLock.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
+forge script script/DeployOwnable.s.sol \
+  --rpc-url "$RPC_URL" \
+  --sender "$DEPLOYER_ADDRESS" \
+  --private-key "$PRIVATE_KEY" \
+  --broadcast
 ```
 
-### Deploy SimpleLending
-
-```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
-
-# Deploy the contract
-forge script script/DeploySimpleLending.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --tc DeployScript --broadcast
-```
-
-### Deploy Ownable
-
-```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export DEPLOYER_ADDRESS=0x...  # Your deployer address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
-
-# Deploy the contract
-forge script script/DeployOwnable.s.sol --rpc-url $RPC_URL --sender $DEPLOYER_ADDRESS --private-key $PRIVATE_KEY --broadcast
-```
-
-## Authenticating and Creating Projects
-
-To authenticate, run:
+### 4) Authenticate and create a project
 
 ```bash
 pcl auth login
 ```
 
-Then follow the instructions to authenticate in your browser.
+- Open the login link in your browser.
+- Create a project in the dApp and link the Ownable contract address.
+- Ownership is verified via the network's admin verifier (typically `owner()` or allowlist-based).
 
-When authenticated in the browser you can create a project in the dapp.
-
-When you create a project you specify which contract(s) the project is for.
-
-## Storing Assertions
-
-Once a project is created you can store assertions for it.
-To store assertions, run:
-
-```bash
-pcl store <assertion-name>
-```
-
-For example, to store the `OwnableAssertion` assertion:
+### 5) Store and submit the assertion
 
 ```bash
 pcl store OwnableAssertion
+pcl submit -a 'OwnableAssertion' -p <project_name>
 ```
 
-All assertions contracts in this repository use the `ph.getAssertionAdopter` cheatcode, which can be used instead of defining the contract to protect in the constructor.
+This stores the assertion in Assertion DA and submits it to the dApp for deployment.
+Project names are case-sensitive and must match the dApp exactly.
+Note: the assertions in this repo use `ph.getAssertionAdopter()` so you link the contract in the dApp instead of passing it in a constructor.
 
-## Submitting Assertions
+### 6) Deploy in the dApp
 
-To submit assertions, run:
+- In the project view, deploy the assertion to **Staging** or **Production**.
+- After the timelock, it becomes staged/enforced and starts protecting transactions.
+
+### 7) Verify it works
 
 ```bash
-pcl submit
+export OWNABLE_ADDRESS=0x...  # deployed Ownable address
+
+# Check current owner
+cast call "$OWNABLE_ADDRESS" "owner()" --rpc-url "$RPC_URL"
+
+# Attempt to transfer ownership (should be dropped if assertion is enforced)
+cast send "$OWNABLE_ADDRESS" \
+  "transferOwnership(address)" 0x1234567890123456789012345678901234567890 \
+  --private-key "$PRIVATE_KEY" \
+  --rpc-url "$RPC_URL" \
+  --timeout 20
+
+# Owner should be unchanged
+cast call "$OWNABLE_ADDRESS" "owner()" --rpc-url "$RPC_URL"
 ```
 
-This gives you an interactive prompt to submit assertions.
+If the transaction times out, the assertion likely dropped it. Some clients require a higher gas price to replace dropped txs.
 
-To be more specific, you can submit a single assertion with:
+## Other Example Protocols
 
-```bash
-pcl submit -a <assertion-name> -p <project-name>
-```
-
-For example, to submit the `OwnableAssertion` assertion to a project named `foobar`:
-
-```bash
-pcl submit -a 'OwnableAssertion' -p foobar
-```
-
-This is assuming the project you created is named `foobar`.
-
-## Activating Assertions
-
-Once the assertions are submitted, you can activate them by going back to the dapp, clicking your project and then reviwing the assertions
-that are marked as "Ready for Review". Once this is done, you sign a transaction that activates the assertion(s).
-
-Your contract is now protected and you can go ahead and run the transactions below for a given protocol.
-
-## Transaction Execution
-
-We've prepared a set of transactions to interact with each protocol.
-
-Before you run the transactions you should make sure to store, submit and activate the assertions as described above.
-
-Note, for each of the protocols below, you can refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) for more context and explanations on how to use the pcl and dapp to store, submit and activate assertions.
+The repo includes two larger examples with dedicated assertions:
 
 ### PhyLock
 
-A staking protocol that allows users to deposit ETH and earn Phylax tokens as rewards. (You can add the token to your browser wallet by pasting the PhyLock Token address that was returned by the deploy script.)
-It seems the developers have spent more time defining their invariants than actually implementing the protocol.
-Because of this there are critical bugs present in the protocol:
+- Contract: `src/PhyLock.sol`
+- Assertions: `PhyLockAssertion`, `OwnershipAssertion`
+- Deploy: `script/DeployPhyLock.s.sol`
 
-- Any address can call `withdraw` with the magic number `69 ether` to drain all the ETH in the protocol.
-- There is no check that `transferOwnership` can only be called by the owner.
-- The owner can call `mint` to mint an arbitrary amount of Phylax tokens to any address.
+### SimpleLending
 
-Luckily, there are assertions in place that make sure the protocol maintains the invariant that user deposit balance must decrease according to the amount of eth withdrawn as well as not allowing the owner to transfer ownership to an arbitrary address.
+- Contract: `src/SimpleLending.sol`
+- Assertions: `SimpleLendingAssertion`, `PriceFeedAssertion`
+- Deploy: `script/DeploySimpleLending.s.sol`
 
-Go ahead and try to break the deployed protocol on `0xd296d45c0a56f3e3ea162796f29e525a668e3863` on the Phylax Sandbox.
-There's at least 50 (test)ETH and unlimited Phylax (test)tokens in the protocol, so do your best.
+The end-to-end flow is the same as the Ownable example:
+1) Deploy the contract(s)
+2) Create a project and link contract addresses
+3) `pcl store` -> `pcl submit`
+4) Deploy in the dApp (staging/production)
+5) Run the provided `cast` transactions in the README below
 
-Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
-Make sure to add both the `PhyLockAssertion` and `OwnershipAssertion` assertions to the project and activate them, to protect against all the critical bugs in the protocol.
+## Transaction Exercises
+
+Use the commands below after you have deployed the contracts and deployed assertions in the dApp.
+
+### PhyLock
+
+Deploy these assertions in the dApp before running the transactions:
+- `PhyLockAssertion` for the PhyLock contract
+- `OwnershipAssertion` for the same contract
 
 ```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export PHYLOCK_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
+export PRIVATE_KEY=0x...
+export PHYLOCK_ADDRESS=0x...
+export RPC_URL=...
 
-# Run individual test functions
-# Deposit 0.7 eth from the address of the private key - should succeed as it's intented behavior
-cast send $PHYLOCK_ADDRESS "deposit()" --value 0.7ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+# Deposit 0.7 ETH
+cast send "$PHYLOCK_ADDRESS" "deposit()" --value 0.7ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
 
-# Withdraw 0.2 eth from the address of the private key - should succeed as it's intented behavior (you received phylax tokens as a reward for staking)
-cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 0.2ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+# Withdraw 0.2 ETH
+cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 0.2ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
 
-# Call withdraw with the magic number 69 ether - this should fail due to the assertion
-cast send $PHYLOCK_ADDRESS "withdraw(uint256)" 69ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
+# Withdraw 69 ETH (should be dropped)
+cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 69ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20
 
-# Transfer ownership to an arbitrary address so that the new owner can mint phylax tokens to themselves
-# This should fail due to the ownership assertion
-# Note: you need to use a higher gas price here to replace the dropped transaction
-cast send $PHYLOCK_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000
+# Transfer ownership (should be dropped)
+cast send "$PHYLOCK_ADDRESS" \
+  "transferOwnership(address)" 0x1234567890123456789012345678901234567890 \
+  --private-key "$PRIVATE_KEY" \
+  --rpc-url "$RPC_URL" \
+  --timeout 20 \
+  --gas-price 100000000000
 ```
 
 ### SimpleLending
 
-A lending protocol that allows users to deposit ETH as collateral and borrow tokens against it. The protocol uses a price feed to determine the value of collateral and calculate safe borrowing limits.
-
-The protocol has several critical vulnerabilities:
-
-- Users can withdraw more collateral than they should be allowed to, potentially draining the protocol
-- The price feed can be manipulated to affect borrowing limits
-- The price feed can be updated with unsafe price changes (more than 10% change)
-- There's a buggy withdrawal function that doesn't check collateral ratios
-
-Luckily, there are assertions in place that:
-
-- Prevent unsafe withdrawals that would violate collateral requirements
-- Ensure price feed updates are valid and not manipulated
-- Prevent price changes that exceed 10% threshold
-- Maintain the invariant that total protocol collateral must match the sum of user deposits
-
-Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
-Make sure to add both the `SimpleLending deployed at:` and the `Token Price Feed deployed at:` addresses reported by the deploy script to the project.
-Then activate the `SimpleLendingAssertion` for the SimpleLending contract and `PriceFeedAssertion` for the price feed contract, to protect against all the critical bugs in the protocol.
+Make sure your project includes both the lending contract and the price feed contract, then deploy:
+- `SimpleLendingAssertion` for `SimpleLending`
+- `PriceFeedAssertion` for the price feed
 
 ```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export LENDING_PROTOCOL=0x...  # Your deployed SimpleLending contract address
-export TOKEN_ADDRESS=0x...  # Your deployed token contract address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
-export PRICE_FEED=0x...  # Your deployed price feed contract address
+export PRIVATE_KEY=0x...
+export LENDING_PROTOCOL=0x...
+export TOKEN_ADDRESS=0x...
+export PRICE_FEED=0x...
+export RPC_URL=...
 
 # Mint tokens to the lending protocol
-cast send $TOKEN_ADDRESS "mint(address,uint256)" $LENDING_PROTOCOL 100000ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+cast send "$TOKEN_ADDRESS" "mint(address,uint256)" "$LENDING_PROTOCOL" 100000ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
 
-# Deposit 0.5 ether
-cast send $LENDING_PROTOCOL "deposit()" --value 0.5ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+# Deposit 0.5 ETH
+cast send "$LENDING_PROTOCOL" "deposit()" --value 0.5ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
 
-# Borrow 750 tokens (75% of collateral value at $2000/ETH)
-cast send $LENDING_PROTOCOL "borrow(uint256)" 750ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+# Borrow 750 tokens
+cast send "$LENDING_PROTOCOL" "borrow(uint256)" 750ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
 
-# Withdraw 0.25 ether which makes the position unhealthy - this should fail due to the assertion making sure all positions are healthy
-cast send $LENDING_PROTOCOL "withdraw(uint256)" 0.25ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
+# Withdraw collateral (should be dropped)
+cast send "$LENDING_PROTOCOL" "withdraw(uint256)" 0.25ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20
 
-# Attempt to decrease price by 15% of the pricefeed simulating an oracle deviating too much
-# Note: you need to use a higher gas price here to replace the dropped transaction
-cast send $PRICE_FEED "setPrice(uint256)" 0.75ether --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20 --gas-price 100000000000
-```
-
-### Ownable
-
-A basic implementation of the Ownable pattern that demonstrates ownership management in smart contracts. The contract allows the owner to transfer ownership to other addresses.
-
-A lot of hacks lately are caused by compromised owner accounts, so we have added an assertion to make sure that the owner cannot be changed.
-
-```bash
-# Set environment variables
-export PRIVATE_KEY=0x...  # Your private key with 0x prefix
-export OWNABLE_ADDRESS=0x...  # Your deployed contract address
-export RPC_URL=phylax_demo_rpc_url # phylax demo rpc url
-
-# Before running the transactions below, you should store, submit and activate the assertions as described above in the sections above.
-
-# Check the initial owner
-cast call $OWNABLE_ADDRESS "owner()" --rpc-url $RPC_URL
-
-# Attempt to transfer ownership from a non-owner address - should fail due to assertion
-cast send $OWNABLE_ADDRESS "transferOwnership(address)" 0x1234567890123456789012345678901234567890 --private-key $PRIVATE_KEY --rpc-url $RPC_URL --timeout 20
-
-# Check that the owner did not change, since the assertion prevented the transaction from being executed
-cast call $OWNABLE_ADDRESS "owner()" --rpc-url $RPC_URL
+# Decrease price by 15% (should be dropped)
+cast send "$PRICE_FEED" "setPrice(uint256)" 0.75ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20 --gas-price 100000000000
 ```
 
 ## Additional Resources
 
-Please refer to the [Credible Layer Quickstart Guide](https://docs.phylax.systems/credible/pcl-quickstart) for comprehensive documentation on the Credible Layer and guides for getting started.
+- Quickstart: https://docs.phylax.systems/credible/pcl-quickstart
+- Deploy with dApp: https://docs.phylax.systems/credible/deploy-assertions-dapp
+- Assertions Book: https://docs.phylax.systems/assertions-book/assertions-book-intro
+- Examples: https://github.com/phylaxsystems/assertions-examples
