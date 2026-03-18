@@ -58,14 +58,11 @@ pcl test
 ### 3) Deploy the Ownable example
 
 ```bash
-export PRIVATE_KEY=0x...       # private key with 0x prefix
-export DEPLOYER_ADDRESS=0x...  # address for the private key
-export RPC_URL=...             # chain RPC URL
+export RPC_URL=...  # chain RPC URL
 
 forge script script/DeployOwnable.s.sol \
   --rpc-url "$RPC_URL" \
-  --sender "$DEPLOYER_ADDRESS" \
-  --private-key "$PRIVATE_KEY" \
+  --account <account_name> \
   --broadcast
 ```
 
@@ -106,7 +103,7 @@ cast call "$OWNABLE_ADDRESS" "owner()" --rpc-url "$RPC_URL"
 # Attempt to transfer ownership (should be dropped if assertion is enforced)
 cast send "$OWNABLE_ADDRESS" \
   "transferOwnership(address)" 0x1234567890123456789012345678901234567890 \
-  --private-key "$PRIVATE_KEY" \
+  --account <account_name> \
   --rpc-url "$RPC_URL" \
   --timeout 20
 
@@ -150,23 +147,22 @@ Deploy these assertions in the dApp before running the transactions:
 - `OwnershipAssertion` for the same contract
 
 ```bash
-export PRIVATE_KEY=0x...
 export PHYLOCK_ADDRESS=0x...
 export RPC_URL=...
 
 # Deposit 0.7 ETH
-cast send "$PHYLOCK_ADDRESS" "deposit()" --value 0.7ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
+cast send "$PHYLOCK_ADDRESS" "deposit()" --value 0.7ether --account <account_name> --rpc-url "$RPC_URL"
 
 # Withdraw 0.2 ETH
-cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 0.2ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
+cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 0.2ether --account <account_name> --rpc-url "$RPC_URL"
 
 # Withdraw 69 ETH (should be dropped)
-cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 69ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20
+cast send "$PHYLOCK_ADDRESS" "withdraw(uint256)" 69ether --account <account_name> --rpc-url "$RPC_URL" --timeout 20
 
 # Transfer ownership (should be dropped)
 cast send "$PHYLOCK_ADDRESS" \
   "transferOwnership(address)" 0x1234567890123456789012345678901234567890 \
-  --private-key "$PRIVATE_KEY" \
+  --account <account_name> \
   --rpc-url "$RPC_URL" \
   --timeout 20 \
   --gas-price 100000000000
@@ -179,26 +175,25 @@ Make sure your project includes both the lending contract and the price feed con
 - `PriceFeedAssertion` for the price feed
 
 ```bash
-export PRIVATE_KEY=0x...
 export LENDING_PROTOCOL=0x...
 export TOKEN_ADDRESS=0x...
 export PRICE_FEED=0x...
 export RPC_URL=...
 
 # Mint tokens to the lending protocol
-cast send "$TOKEN_ADDRESS" "mint(address,uint256)" "$LENDING_PROTOCOL" 100000ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
+cast send "$TOKEN_ADDRESS" "mint(address,uint256)" "$LENDING_PROTOCOL" 100000ether --account <account_name> --rpc-url "$RPC_URL"
 
 # Deposit 0.5 ETH
-cast send "$LENDING_PROTOCOL" "deposit()" --value 0.5ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
+cast send "$LENDING_PROTOCOL" "deposit()" --value 0.5ether --account <account_name> --rpc-url "$RPC_URL"
 
 # Borrow 750 tokens
-cast send "$LENDING_PROTOCOL" "borrow(uint256)" 750ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL"
+cast send "$LENDING_PROTOCOL" "borrow(uint256)" 750ether --account <account_name> --rpc-url "$RPC_URL"
 
 # Withdraw collateral (should be dropped)
-cast send "$LENDING_PROTOCOL" "withdraw(uint256)" 0.25ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20
+cast send "$LENDING_PROTOCOL" "withdraw(uint256)" 0.25ether --account <account_name> --rpc-url "$RPC_URL" --timeout 20
 
 # Decrease price by 15% (should be dropped)
-cast send "$PRICE_FEED" "setPrice(uint256)" 0.75ether --private-key "$PRIVATE_KEY" --rpc-url "$RPC_URL" --timeout 20 --gas-price 100000000000
+cast send "$PRICE_FEED" "setPrice(uint256)" 0.75ether --account <account_name> --rpc-url "$RPC_URL" --timeout 20 --gas-price 100000000000
 ```
 
 ## Additional Resources

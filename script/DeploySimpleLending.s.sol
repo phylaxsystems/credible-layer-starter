@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "forge-std/Script.sol";
+import {console} from "forge-std/Script.sol";
+import {DeployBase} from "./DeployBase.s.sol";
 import "../src/SimpleLending.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
@@ -20,12 +21,8 @@ contract MockToken is ERC20 {
     }
 }
 
-contract DeployScript is Script {
-    function run() public {
-        // Load private key from environment
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(deployerPrivateKey);
-
+contract DeployScript is DeployBase {
+    function run() public broadcast {
         // Deploy mock token
         MockToken mockToken = new MockToken();
         console.log("MockToken deployed at:", address(mockToken));
@@ -43,7 +40,5 @@ contract DeployScript is Script {
         // Deploy SimpleLending contract
         SimpleLending lending = new SimpleLending(address(mockToken), address(ethPriceFeed), address(tokenPriceFeed));
         console.log("SimpleLending deployed at:", address(lending));
-
-        vm.stopBroadcast();
     }
 }
