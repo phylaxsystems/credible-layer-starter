@@ -5,7 +5,7 @@ import {console} from "forge-std/Script.sol";
 import {DeployBase} from "./DeployBase.s.sol";
 import "../src/PhyLock.sol";
 
-contract DeployScript is DeployBase {
+contract DeployPhyLock is DeployBase {
     function run() public broadcast {
         PhyLock phyLock = new PhyLock();
         console.log("PhyLock deployed at:", address(phyLock));

@@ -21,7 +21,7 @@ contract MockToken is ERC20 {
     }
 }
 
-contract DeployScript is DeployBase {
+contract DeploySimpleLending is DeployBase {
     function run() public broadcast {
         // Deploy mock token
         MockToken mockToken = new MockToken();
