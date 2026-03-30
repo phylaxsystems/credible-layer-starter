@@ -7,6 +7,7 @@ This repo mirrors the public quickstart and keeps the steps as short as possible
 
 - `assertions/src`: Assertion contracts (Solidity)
 - `assertions/test`: Assertion tests runnable with `pcl test`
+- `assertions/credible-example.toml`: Example deployment configuration for `pcl apply`
 - `src`: Example protocols with intentional vulnerabilities
 - `script`: Deployment scripts for the example protocols
 - `lib`: Submodules for `credible-std`, `forge-std`, and OpenZeppelin
@@ -73,26 +74,52 @@ pcl auth login
 ```
 
 - Open the login link in your browser.
-- Create a project in the dApp and link the Ownable contract address.
+- Create a project in the [platform](https://app.phylax.systems) and link the Ownable contract address.
 - Ownership is verified via the network's admin verifier (typically `owner()` or allowlist-based).
 
-### 5) Store and submit the assertion
+### 5) Configure `credible.toml`
+
+Copy the example configuration and update it with your deployed contract address:
 
 ```bash
-pcl store OwnableAssertion
-pcl submit -a 'OwnableAssertion' -p <project_name>
+cp assertions/credible-example.toml assertions/credible.toml
 ```
 
-This stores the assertion in Assertion DA and submits it to the dApp for deployment.
-Project names are case-sensitive and must match the dApp exactly.
-Note: the assertions in this repo use `ph.getAssertionAdopter()` so you link the contract in the dApp instead of passing it in a constructor.
+Edit `assertions/credible.toml`:
 
-### 6) Deploy in the dApp
+```toml
+environment = "production"
 
-- In the project view, deploy the assertion to **Staging** or **Production**.
+[contracts.ownable]
+address = "<ADDRESS_OF_DEPLOYED_CONTRACT>"
+name = "Ownable"
+
+[[contracts.ownable.assertions]]
+file = "assertions/src/OwnableAssertion.a.sol"
+```
+
+### 6) Create a release with `pcl apply`
+
+```bash
+pcl apply
+```
+
+By default, `pcl apply` looks for `assertions/credible.toml`. To use a different path:
+
+```bash
+pcl apply -c path/to/credible.toml
+```
+
+This reads `credible.toml`, builds the assertion, and creates a release on the platform.
+You'll be prompted to select a project (if `project_id` is not set in `credible.toml`) and to confirm the release.
+
+### 7) Deploy in the platform
+
+- Open the release link returned by `pcl apply`, or navigate to your project in [app.phylax.systems](https://app.phylax.systems).
+- Review and deploy the assertion to **Staging** or **Production**.
 - After the timelock, it becomes staged/enforced and starts protecting transactions.
 
-### 7) Verify it works
+### 8) Verify it works
 
 ```bash
 export OWNABLE_ADDRESS=0x...  # deployed Ownable address
@@ -132,17 +159,18 @@ The repo includes two larger examples with dedicated assertions:
 The end-to-end flow is the same as the Ownable example:
 1) Deploy the contract(s)
 2) Create a project and link contract addresses
-3) `pcl store` -> `pcl submit`
-4) Deploy in the dApp (staging/production)
-5) Run the provided `cast` transactions in the README below
+3) Add the contracts and assertions to `credible.toml` (see `assertions/credible-example.toml`)
+4) `pcl apply`
+5) Deploy in the platform (staging/production)
+6) Run the provided `cast` transactions below
 
 ## Transaction Exercises
 
-Use the commands below after you have deployed the contracts and deployed assertions in the dApp.
+Use the commands below after you have deployed the contracts and deployed assertions in the platform.
 
 ### PhyLock
 
-Deploy these assertions in the dApp before running the transactions:
+Deploy these assertions in the platform before running the transactions:
 - `PhyLockAssertion` for the PhyLock contract
 - `OwnershipAssertion` for the same contract
 
@@ -170,7 +198,7 @@ cast send "$PHYLOCK_ADDRESS" \
 
 ### SimpleLending
 
-Make sure your project includes both the lending contract and the price feed contract, then deploy:
+Make sure your `credible.toml` includes both the lending contract and the price feed contract, then deploy:
 - `SimpleLendingAssertion` for `SimpleLending`
 - `PriceFeedAssertion` for the price feed
 
@@ -199,6 +227,7 @@ cast send "$PRICE_FEED" "setPrice(uint256)" 0.75ether --account <account_name> -
 ## Additional Resources
 
 - Quickstart: https://docs.phylax.systems/credible/pcl-quickstart
-- Deploy with dApp: https://docs.phylax.systems/credible/deploy-assertions-dapp
+- Apply assertions: https://docs.phylax.systems/credible/apply-assertions
+- Deploy with the platform: https://docs.phylax.systems/credible/deploy-assertions-dapp
 - Assertions Book: https://docs.phylax.systems/assertions-book/assertions-book-intro
 - Examples: https://github.com/phylaxsystems/assertions-examples

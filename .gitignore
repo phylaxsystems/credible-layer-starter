@@ -11,6 +11,9 @@ forge-artifacts/
 .env
 .env.*
 
+# Deployment configuration
+credible.toml
+
 # Development tools
 .DS_Store
 .vscode/
