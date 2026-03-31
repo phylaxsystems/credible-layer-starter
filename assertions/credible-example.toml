@@ -1,0 +1,33 @@
+environment = "production"
+
+# Ownable — update with your deployed Ownable contract address
+[contracts.ownable]
+address = "<OWNABLE_ADDRESS>"
+name = "Ownable"
+
+[[contracts.ownable.assertions]]
+file = "assertions/src/OwnableAssertion.a.sol"
+
+# PhyLock — update with your deployed PhyLock contract address
+[contracts.phylock]
+address = "<PHYLOCK_ADDRESS>"
+name = "PhyLock"
+
+[[contracts.phylock.assertions]]
+file = "assertions/src/PhyLockAssertion.a.sol"
+
+# SimpleLending — update with your deployed addresses from DeploySimpleLending.s.sol
+[contracts.simple_lending]
+address = "<SIMPLE_LENDING_ADDRESS>"
+name = "SimpleLending"
+
+[[contracts.simple_lending.assertions]]
+file = "assertions/src/SimpleLendingAssertion.a.sol"
+
+# PriceFeed — use the ETH Price Feed address from DeploySimpleLending.s.sol
+[contracts.price_feed]
+address = "<PRICE_FEED_ADDRESS>"
+name = "MockPriceFeed"
+
+[[contracts.price_feed.assertions]]
+file = "assertions/src/PriceFeedAssertion.a.sol"
