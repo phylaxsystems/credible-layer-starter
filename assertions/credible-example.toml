@@ -1,16 +1,16 @@
 environment = "production"
 
-# Ownable
+# Ownable — update with your deployed Ownable contract address
 [contracts.ownable]
-address = "0x75634113D6A2fbfF5e65151ce1572195bE1d001A"
+address = "<OWNABLE_ADDRESS>"
 name = "Ownable"
 
 [[contracts.ownable.assertions]]
 file = "assertions/src/OwnableAssertion.a.sol"
 
-# PhyLock
+# PhyLock — update with your deployed PhyLock contract address
 [contracts.phylock]
-address = "0xD452d2C8602322a46DFf0936fD6426BDC08358bf"
+address = "<PHYLOCK_ADDRESS>"
 name = "PhyLock"
 
 [[contracts.phylock.assertions]]
